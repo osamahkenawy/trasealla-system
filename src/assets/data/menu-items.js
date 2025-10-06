@@ -4,13 +4,221 @@ export const MENU_ITEMS = [{
   isTitle: true
 }, {
   key: 'dashboards',
-  label: 'dashboard',
+  label: 'Dashboard',
   icon: 'solar:widget-2-outline',
   url: '/dashboards',
   badge: {
     text: 'New',
     variant: 'primary'
   }
+},
+// ====================Trasealla Services===============
+{
+  key: 'trasealla-services',
+  label: 'Trasealla Services',
+  isTitle: true
+}, {
+  key: 'flight-tickets',
+  label: 'Flight Tickets',
+  icon: 'solar:airplane-outline',
+  url: '/services/flight-tickets',
+  parentKey: 'trasealla-services'
+}, {
+  key: 'visa-services',
+  label: 'Visa Services',
+  icon: 'solar:passport-outline',
+  children: [{
+    key: 'uae-visas',
+    label: 'UAE Visas',
+    url: '/services/visas/uae',
+    parentKey: 'visa-services'
+  }, {
+    key: 'schengen-visas',
+    label: 'Schengen Visas',
+    url: '/services/visas/schengen',
+    parentKey: 'visa-services'
+  }, {
+    key: 'international-visas',
+    label: 'International Visas',
+    url: '/services/visas/international',
+    parentKey: 'visa-services'
+  }]
+}, {
+  key: 'uae-residency',
+  label: 'UAE Residency',
+  icon: 'solar:home-outline',
+  children: [{
+    key: 'employment-residence',
+    label: 'Employment Residence',
+    url: '/services/residency/employment',
+    parentKey: 'uae-residency'
+  }, {
+    key: 'investor-residence',
+    label: 'Investor/Partner Residence',
+    url: '/services/residency/investor',
+    parentKey: 'uae-residency'
+  }, {
+    key: 'family-sponsorship',
+    label: 'Family Sponsorship',
+    url: '/services/residency/family',
+    parentKey: 'uae-residency'
+  }, {
+    key: 'golden-visa',
+    label: 'Golden Visa Assistance',
+    url: '/services/residency/golden-visa',
+    parentKey: 'uae-residency'
+  }]
+}, {
+  key: 'education-travel',
+  label: 'Education Travel',
+  icon: 'solar:graduation-outline',
+  children: [{
+    key: 'uk-study',
+    label: 'UK (London)',
+    url: '/services/education/uk',
+    parentKey: 'education-travel'
+  }, {
+    key: 'europe-study',
+    label: 'Europe',
+    url: '/services/education/europe',
+    parentKey: 'education-travel'
+  }, {
+    key: 'australia-study',
+    label: 'Australia',
+    url: '/services/education/australia',
+    parentKey: 'education-travel'
+  }, {
+    key: 'new-zealand-study',
+    label: 'New Zealand',
+    url: '/services/education/new-zealand',
+    parentKey: 'education-travel'
+  }, {
+    key: 'brazil-study',
+    label: 'Brazil',
+    url: '/services/education/brazil',
+    parentKey: 'education-travel'
+  }]
+}, {
+  key: 'immigration',
+  label: 'Immigration Pathways',
+  icon: 'solar:globe-outline',
+  children: [{
+    key: 'brazil-immigration',
+    label: 'Brazil Immigration',
+    url: '/services/immigration/brazil',
+    parentKey: 'immigration'
+  }, {
+    key: 'australia-immigration',
+    label: 'Australia Immigration',
+    url: '/services/immigration/australia',
+    parentKey: 'immigration'
+  }, {
+    key: 'new-zealand-immigration',
+    label: 'New Zealand Immigration',
+    url: '/services/immigration/new-zealand',
+    parentKey: 'immigration'
+  }]
+}, {
+  key: 'tour-packages',
+  label: 'Tour Packages',
+  icon: 'solar:map-point-outline',
+  children: [{
+    key: 'egypt-tours',
+    label: 'Egypt',
+    url: '/services/tours/egypt',
+    parentKey: 'tour-packages'
+  }, {
+    key: 'morocco-tours',
+    label: 'Morocco',
+    url: '/services/tours/morocco',
+    parentKey: 'tour-packages'
+  }, {
+    key: 'black-sea-tours',
+    label: 'Black Sea',
+    url: '/services/tours/black-sea',
+    parentKey: 'tour-packages'
+  }]
+}, {
+  key: 'add-ons',
+  label: 'Add-ons & Support',
+  icon: 'solar:settings-outline',
+  children: [{
+    key: 'hotels',
+    label: 'Hotel Bookings',
+    url: '/services/add-ons/hotels',
+    parentKey: 'add-ons'
+  }, {
+    key: 'insurance',
+    label: 'Travel Insurance',
+    url: '/services/add-ons/insurance',
+    parentKey: 'add-ons'
+  }, {
+    key: 'transfers',
+    label: 'Airport Transfers',
+    url: '/services/add-ons/transfers',
+    parentKey: 'add-ons'
+  }, {
+    key: 'itineraries',
+    label: 'Custom Itineraries',
+    url: '/services/add-ons/itineraries',
+    parentKey: 'add-ons'
+  }, {
+    key: 'corporate',
+    label: 'Group & Corporate',
+    url: '/services/add-ons/corporate',
+    parentKey: 'add-ons'
+  }]
+}, {
+  key: 'additional-services',
+  label: 'Additional Services',
+  icon: 'solar:star-outline',
+  children: [{
+    key: 'hajj-umrah',
+    label: 'Hajj & Umrah',
+    url: '/services/additional/hajj-umrah',
+    parentKey: 'additional-services'
+  }, {
+    key: 'cruise-holidays',
+    label: 'Cruise Holidays',
+    url: '/services/additional/cruise',
+    parentKey: 'additional-services'
+  }, {
+    key: 'adventure-travel',
+    label: 'Adventure Travel',
+    url: '/services/additional/adventure',
+    parentKey: 'additional-services'
+  }, {
+    key: 'luxury-services',
+    label: 'Luxury & VIP',
+    url: '/services/additional/luxury',
+    parentKey: 'additional-services'
+  }]
+},
+// ====================Management===============
+{
+  key: 'management',
+  label: 'Management',
+  isTitle: true
+}, {
+  key: 'bookings',
+  label: 'Bookings',
+  icon: 'solar:calendar-outline',
+  url: '/management/bookings'
+}, {
+  key: 'customers',
+  label: 'Customers',
+  icon: 'solar:users-group-rounded-outline',
+  url: '/management/customers'
+}, {
+  key: 'payments',
+  label: 'Payments',
+  icon: 'solar:card-outline',
+  url: '/management/payments'
+}, {
+  key: 'reports',
+  label: 'Reports & Analytics',
+  icon: 'solar:chart-outline',
+  url: '/management/reports'
 },
 // ====================Authentication===============
 
