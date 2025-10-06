@@ -1,11 +1,16 @@
 /**
  * API Configuration and Helper Functions
+ * Provides both fetch and axios-based API utilities
  */
 
 import { authenticatedFetch, logout } from './auth';
+import axiosInstance from '@/plugins/axios';
 
 // API Base URL - Update this based on your environment
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
+
+// Export axios instance for direct use
+export { axiosInstance };
 
 /**
  * API Error class
@@ -176,12 +181,23 @@ export const upload = async (endpoint, formData) => {
   }
 };
 
+// Axios-based API methods (recommended for better interceptor support)
+export const axios = {
+  get: (url, params) => axiosInstance.get(url, { params }),
+  post: (url, data) => axiosInstance.post(url, data),
+  put: (url, data) => axiosInstance.put(url, data),
+  patch: (url, data) => axiosInstance.patch(url, data),
+  delete: (url) => axiosInstance.delete(url),
+  request: (config) => axiosInstance.request(config),
+};
+
 // Example API endpoints
 export const API_ENDPOINTS = {
   // Auth
   LOGIN: '/auth/login',
   LOGOUT: '/auth/logout',
   REFRESH_TOKEN: '/auth/refresh',
+  REFRESH_TOKEN_EXTERNAL: '/auth/external/refresh-token',
   REGISTER: '/auth/register',
   FORGOT_PASSWORD: '/auth/forgot-password',
   RESET_PASSWORD: '/auth/reset-password',
@@ -194,6 +210,7 @@ export const API_ENDPOINTS = {
 };
 
 export default {
+  // Fetch-based methods
   get,
   post,
   put,
@@ -201,5 +218,11 @@ export default {
   del,
   upload,
   apiRequest,
+  
+  // Axios-based methods (recommended)
+  axios,
+  axiosInstance,
+  
+  // Endpoints
   API_ENDPOINTS,
 };

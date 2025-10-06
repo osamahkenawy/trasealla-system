@@ -2,15 +2,15 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import {
-  clearAuthData,
-  getCurrentUser,
-  getToken,
-  getUserRole,
-  isAuthenticated,
-  saveAuthData,
-  getRedirectPathByRole
-} from '@/utils/auth';
+  clearAuthSession,
+  getCurrentUser as getUser,
+  isAuthenticated as checkAuth,
+  saveAuthSession,
+  getPortal
+} from '@/plugins/Auth';
+import { getRedirectPathByRole } from '@/utils/auth';
 import { useRouter } from 'next/navigation';
+import axiosInstance from '@/plugins/axios';
 
 const AuthContext = createContext(undefined);
 
@@ -46,9 +46,9 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const initAuth = () => {
       try {
-        const currentUser = getCurrentUser();
-        const currentToken = getToken();
-        const currentRole = getUserRole();
+        const currentUser = getUser();
+        const currentToken = currentUser ? localStorage.getItem('token') : null;
+        const currentRole = currentUser?.role;
 
         setUser(currentUser);
         setToken(currentToken);
@@ -76,21 +76,18 @@ export const AuthProvider = ({ children }) => {
    */
   const login = async (email, password) => {
     try {
-      const response = await fetch('http://localhost:5001/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
+      const response = await axiosInstance.post('auth/login', {
+        email,
+        password
       });
 
-      const data = await response.json();
+      const data = response.data;
 
       if (data.success) {
         const { user, token, refreshToken } = data.data;
 
-        // Save auth data
-        saveAuthData({ token, refreshToken, user });
+        // Save auth session using new Auth plugin
+        saveAuthSession({ token, refreshToken, user }, 'admin');
 
         // Set token cookie for middleware
         setTokenCookie(token);
@@ -108,7 +105,7 @@ export const AuthProvider = ({ children }) => {
       console.error('Login error:', error);
       return {
         success: false,
-        message: error.message || 'An error occurred during login',
+        message: error.response?.data?.message || error.message || 'An error occurred during login',
       };
     }
   };
@@ -117,7 +114,7 @@ export const AuthProvider = ({ children }) => {
    * Logout user
    */
   const logout = () => {
-    clearAuthData();
+    clearAuthSession('admin');
     removeTokenCookie();
     setUser(null);
     setToken(null);
@@ -129,8 +126,8 @@ export const AuthProvider = ({ children }) => {
    * Check if user is authenticated
    * @returns {boolean}
    */
-  const checkAuth = () => {
-    return isAuthenticated();
+  const checkAuthentication = () => {
+    return checkAuth('admin');
   };
 
   /**
@@ -149,10 +146,11 @@ export const AuthProvider = ({ children }) => {
     token,
     role,
     loading,
-    isAuthenticated: checkAuth(),
+    isAuthenticated: checkAuthentication(),
     login,
     logout,
     getRedirectPath,
+    axiosInstance, // Expose axios instance for making API calls
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
