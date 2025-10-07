@@ -1,0 +1,220 @@
+// Custom Toast Notification Styles
+// Light and user-friendly colors for better UX
+
+.custom-toast {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+  min-width: 300px;
+  max-width: 400px;
+  
+  // Success Toast
+  &.custom-toast-success {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border-left: 4px solid #10b981;
+    
+    .custom-toast-header-success {
+      background: rgba(16, 185, 129, 0.1);
+      border-bottom: 1px solid rgba(16, 185, 129, 0.2);
+      color: #065f46;
+      font-weight: 600;
+      
+      .btn-close {
+        filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%);
+      }
+    }
+    
+    .custom-toast-body-success {
+      background: transparent;
+      color: #047857;
+      font-weight: 500;
+    }
+  }
+  
+  // Error Toast - Light Red Background
+  &.custom-toast-danger {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    border-left: 4px solid #ef4444;
+    
+    .custom-toast-header-danger {
+      background: rgba(239, 68, 68, 0.1);
+      border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+      color: #991b1b;
+      font-weight: 600;
+      
+      .btn-close {
+        filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%);
+      }
+    }
+    
+    .custom-toast-body-danger {
+      background: transparent;
+      color: #dc2626;
+      font-weight: 500;
+    }
+  }
+  
+  // Warning Toast
+  &.custom-toast-warning {
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    border-left: 4px solid #f59e0b;
+    
+    .custom-toast-header-warning {
+      background: rgba(245, 158, 11, 0.1);
+      border-bottom: 1px solid rgba(245, 158, 11, 0.2);
+      color: #92400e;
+      font-weight: 600;
+      
+      .btn-close {
+        filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%);
+      }
+    }
+    
+    .custom-toast-body-warning {
+      background: transparent;
+      color: #d97706;
+      font-weight: 500;
+    }
+  }
+  
+  // Info Toast
+  &.custom-toast-info {
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border-left: 4px solid #3b82f6;
+    
+    .custom-toast-header-info {
+      background: rgba(59, 130, 246, 0.1);
+      border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+      color: #1e40af;
+      font-weight: 600;
+      
+      .btn-close {
+        filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%);
+      }
+    }
+    
+    .custom-toast-body-info {
+      background: transparent;
+      color: #2563eb;
+      font-weight: 500;
+    }
+  }
+}
+
+// Toast Container Positioning
+.toast-container {
+  z-index: 9999 !important;
+  
+  &.position-fixed {
+    top: 20px;
+    right: 20px;
+  }
+}
+
+// Animation for toast appearance
+.custom-toast {
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+// Hover effects
+.custom-toast:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+// Close button styling
+.custom-toast .btn-close {
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+  
+  &:hover {
+    opacity: 1;
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .custom-toast {
+    min-width: 280px;
+    max-width: 320px;
+    margin: 10px;
+  }
+  
+  .toast-container {
+    &.position-fixed {
+      top: 10px;
+      right: 10px;
+      left: 10px;
+    }
+  }
+}
+
+// Dark mode support (if needed)
+@media (prefers-color-scheme: dark) {
+  .custom-toast {
+    &.custom-toast-success {
+      background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+      
+      .custom-toast-header-success {
+        background: rgba(16, 185, 129, 0.2);
+        color: #6ee7b7;
+      }
+      
+      .custom-toast-body-success {
+        color: #a7f3d0;
+      }
+    }
+    
+    &.custom-toast-danger {
+      background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%);
+      
+      .custom-toast-header-danger {
+        background: rgba(239, 68, 68, 0.2);
+        color: #fca5a5;
+      }
+      
+      .custom-toast-body-danger {
+        color: #fecaca;
+      }
+    }
+    
+    &.custom-toast-warning {
+      background: linear-gradient(135deg, #78350f 0%, #92400e 100%);
+      
+      .custom-toast-header-warning {
+        background: rgba(245, 158, 11, 0.2);
+        color: #fcd34d;
+      }
+      
+      .custom-toast-body-warning {
+        color: #fde68a;
+      }
+    }
+    
+    &.custom-toast-info {
+      background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+      
+      .custom-toast-header-info {
+        background: rgba(59, 130, 246, 0.2);
+        color: #93c5fd;
+      }
+      
+      .custom-toast-body-info {
+        color: #bfdbfe;
+      }
+    }
+  }
+}
