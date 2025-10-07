@@ -14,6 +14,7 @@ const StatCard = ({
   value, 
   textColor = '#101828',
   className = '',
+  loading = false,
   ...props 
 }) => {
   return (
@@ -31,7 +32,16 @@ const StatCard = ({
             className="value"
             style={{ color: textColor }}
           >
-            {value}
+            {loading ? (
+              <div className="d-flex align-items-center">
+                <div className="spinner-border spinner-border-sm me-2" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </div>
+                Loading...
+              </div>
+            ) : (
+              value
+            )}
           </div>
         </div>
 

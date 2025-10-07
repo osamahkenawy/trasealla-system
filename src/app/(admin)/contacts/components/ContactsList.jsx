@@ -22,6 +22,7 @@ const ContactsList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [stats, setStats] = useState(null);
+  const [statsLoading, setStatsLoading] = useState(false);
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 10,
@@ -111,10 +112,14 @@ const ContactsList = () => {
   // Fetch statistics
   const fetchStats = async () => {
     try {
+      setStatsLoading(true);
       const response = await getContactStats();
-      setStats(response.data);
+      console.log('Stats response:', response.data); // Debug log
+      setStats(response.data.stats); // Fix: Use response.data.stats instead of response.data
     } catch (err) {
       console.error('Error fetching stats:', err);
+    } finally {
+      setStatsLoading(false);
     }
   };
 
@@ -192,13 +197,11 @@ const ContactsList = () => {
   return (
     <div className="contacts-list">
       {/* Statistics Cards */}
-      {stats && (
-        <Row className="mb-4">
-          <Col>
-            <ContactsStats stats={stats} />
-          </Col>
-        </Row>
-      )}
+      <Row className="mb-4">
+        <Col>
+          <ContactsStats stats={stats} loading={statsLoading} />
+        </Col>
+      </Row>
 
       {/* Filters */}
       <Row className="mb-4">
