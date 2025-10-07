@@ -1,71 +1,120 @@
-import { createContext, useContext, useState } from 'react';
-import { ToastBody, ToastHeader } from 'react-bootstrap';
-import Toast from 'react-bootstrap/Toast';
-import ToastContainer from 'react-bootstrap/ToastContainer';
-const NotificationContext = createContext(undefined);
-function Toastr({
-  show,
-  title,
-  message,
-  onClose,
-  variant = 'light',
-  delay
-}) {
-  return <ToastContainer className="m-3 position-fixed" position="top-end">
-      <Toast bg={variant} delay={delay} show={show} onClose={onClose} autohide>
-        {title && <ToastHeader className={`text-${variant}`}>
-            <strong className="me-auto">{title}</strong>
-          </ToastHeader>}
-        <ToastBody className={['dark', 'danger', 'success', 'primary'].includes(variant) ? 'text-white' : ''}>{message}</ToastBody>
-      </Toast>
-    </ToastContainer>;
-}
-export function useNotificationContext() {
+'use client';
+
+import React, { createContext, useContext, useState, useCallback } from 'react';
+import NotificationAlert from '@/components/NotificationAlert';
+
+const NotificationContext = createContext();
+
+export const useNotificationContext = () => {
   const context = useContext(NotificationContext);
   if (!context) {
-    throw new Error('useNotificationContext must be used within an NotificationProvider');
+    throw new Error('useNotificationContext must be used within a NotificationProvider');
   }
   return context;
-}
-export function NotificationProvider({
-  children
-}) {
-  const defaultConfig = {
-    show: false,
-    message: '',
-    title: '',
-    delay: 2000
-  };
-  const [config, setConfig] = useState(defaultConfig);
-  const hideNotification = () => {
-    setConfig({
-      show: false,
-      message: '',
-      title: ''
-    });
-  };
-  const showNotification = ({
-    title,
-    message,
-    variant,
-    delay = 2000
-  }) => {
-    setConfig({
-      show: true,
-      title,
+};
+
+export const NotificationProvider = ({ children }) => {
+  const [notifications, setNotifications] = useState([]);
+
+  // Add a new notification
+  const addNotification = useCallback((notification) => {
+    const id = Date.now() + Math.random();
+    const newNotification = {
+      id,
+      type: 'success',
+      duration: 5000,
+      variant: 'toast',
+      position: 'top-end',
+      ...notification
+    };
+
+    setNotifications(prev => [...prev, newNotification]);
+
+    // Auto remove after duration
+    if (newNotification.duration > 0) {
+      setTimeout(() => {
+        removeNotification(id);
+      }, newNotification.duration);
+    }
+
+    return id;
+  }, []);
+
+  // Remove a notification
+  const removeNotification = useCallback((id) => {
+    setNotifications(prev => prev.filter(notification => notification.id !== id));
+  }, []);
+
+  // Success notification
+  const showSuccess = useCallback((message, options = {}) => {
+    return addNotification({
+      type: 'success',
+      title: 'Success!',
       message,
-      variant: variant ?? 'light',
-      onClose: hideNotification,
-      delay
+      ...options
     });
-    setTimeout(() => {
-      setConfig(defaultConfig);
-    }, delay);
+  }, [addNotification]);
+
+  // Error notification
+  const showError = useCallback((message, options = {}) => {
+    return addNotification({
+      type: 'danger',
+      title: 'Error!',
+      message,
+      duration: 7000, // Longer duration for errors
+      ...options
+    });
+  }, [addNotification]);
+
+  // Warning notification
+  const showWarning = useCallback((message, options = {}) => {
+    return addNotification({
+      type: 'warning',
+      title: 'Warning!',
+      message,
+      ...options
+    });
+  }, [addNotification]);
+
+  // Info notification
+  const showInfo = useCallback((message, options = {}) => {
+    return addNotification({
+      type: 'info',
+      title: 'Information',
+      message,
+      ...options
+    });
+  }, [addNotification]);
+
+  // Clear all notifications
+  const clearAll = useCallback(() => {
+    setNotifications([]);
+  }, []);
+
+  const value = {
+    notifications,
+    addNotification,
+    removeNotification,
+    showSuccess,
+    showError,
+    showWarning,
+    showInfo,
+    clearAll
   };
-  return <NotificationContext.Provider value={{
-    showNotification
-  }}>
-      <Toastr {...config} />
+
+  return (
+    <NotificationContext.Provider value={value}>
       {children}
-    </NotificationContext.Provider>;
-}
+      
+      {/* Render all notifications */}
+      {notifications.map(notification => (
+        <NotificationAlert
+          key={notification.id}
+          show={true}
+          onClose={() => removeNotification(notification.id)}
+          {...notification}
+        />
+      ))}
+    </NotificationContext.Provider>
+  );
+};

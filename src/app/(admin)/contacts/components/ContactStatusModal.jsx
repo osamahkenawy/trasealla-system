@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, Alert, Spinner, Row, Col } from 'react-bootstrap';
+import { useNotificationContext } from '@/context/useNotificationContext';
 import { 
   updateContactStatus,
   getUsers,
@@ -10,6 +11,7 @@ import {
 } from '@/services/contactsService';
 
 const ContactStatusModal = ({ contact, show, onHide, onSuccess }) => {
+  const { showError } = useNotificationContext();
   const [formData, setFormData] = useState({
     status: '',
     priority: '',
@@ -79,11 +81,13 @@ const ContactStatusModal = ({ contact, show, onHide, onSuccess }) => {
         }
       });
 
-      await updateContactStatus(contact.id, updateData);
-      onSuccess();
+      const response = await updateContactStatus(contact.id, updateData);
+      onSuccess(response.data?.contact || contact);
     } catch (err) {
       console.error('Error updating contact status:', err);
-      setError(err.response?.data?.message || 'Failed to update contact status');
+      const errorMsg = err.response?.data?.message || 'Failed to update contact status';
+      setError(errorMsg);
+      showError(errorMsg);
     } finally {
       setLoading(false);
     }

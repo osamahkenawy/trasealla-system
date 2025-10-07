@@ -11,6 +11,7 @@ import {
   PRIORITY_LABELS,
   PRIORITY_COLORS
 } from '@/services/contactsService';
+import { useNotificationContext } from '@/context/useNotificationContext';
 import ContactsTable from './ContactsTable';
 import ContactsFilters from './ContactsFilters';
 import ContactsStats from './ContactsStats';
@@ -18,6 +19,7 @@ import ContactDetailsModal from './ContactDetailsModal';
 import ContactStatusModal from './ContactStatusModal';
 
 const ContactsList = () => {
+  const { showSuccess, showError, showWarning, showInfo } = useNotificationContext();
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -91,18 +93,28 @@ const ContactsList = () => {
       });
       
       if (err.response?.status === 401) {
-        setError('Authentication failed. Please login again.');
+        const errorMsg = 'Authentication failed. Please login again.';
+        setError(errorMsg);
+        showError(errorMsg);
         // Clear tokens and redirect to login
         // localStorage.clear();
         // window.location.href = '/auth/sign-in';
       } else if (err.response?.status === 403 || err.message.includes('Access Denied')) {
-        setError('Access Denied: You do not have permission to access contacts. This feature requires admin privileges.');
+        const errorMsg = 'Access Denied: You do not have permission to access contacts. This feature requires admin privileges.';
+        setError(errorMsg);
+        showError(errorMsg);
       } else if (err.message.includes('CORS')) {
-        setError('CORS Error: Please check your backend server CORS configuration. Make sure it allows requests from localhost:3000');
+        const errorMsg = 'CORS Error: Please check your backend server CORS configuration. Make sure it allows requests from localhost:3000';
+        setError(errorMsg);
+        showError(errorMsg);
       } else if (err.code === 'ERR_NETWORK') {
-        setError('Network Error: Cannot connect to backend server. Please ensure your backend is running on localhost:5001');
+        const errorMsg = 'Network Error: Cannot connect to backend server. Please ensure your backend is running on localhost:5001';
+        setError(errorMsg);
+        showError(errorMsg);
       } else {
-        setError(err.response?.data?.message || err.message || 'Failed to fetch contacts');
+        const errorMsg = err.response?.data?.message || err.message || 'Failed to fetch contacts';
+        setError(errorMsg);
+        showError(errorMsg);
       }
     } finally {
       setLoading(false);
@@ -118,6 +130,7 @@ const ContactsList = () => {
       setStats(response.data.stats); // Fix: Use response.data.stats instead of response.data
     } catch (err) {
       console.error('Error fetching stats:', err);
+      showError('Failed to load contact statistics');
     } finally {
       setStatsLoading(false);
     }
@@ -171,17 +184,26 @@ const ContactsList = () => {
   };
 
   // Handle status update success
-  const handleStatusUpdateSuccess = () => {
+  const handleStatusUpdateSuccess = (updatedContact) => {
     fetchContacts(pagination.page);
     fetchStats();
     handleStatusModalClose();
+    
+    // Show success notification
+    const contactName = updatedContact?.name || 'Contact';
+    const newStatus = updatedContact?.status || 'updated';
+    showSuccess(`${contactName} status updated to ${newStatus} successfully!`);
   };
 
   // Handle response success
-  const handleResponseSuccess = () => {
+  const handleResponseSuccess = (contactName) => {
     fetchContacts(pagination.page);
     fetchStats();
     handleDetailsModalClose();
+    
+    // Show success notification
+    const name = contactName || selectedContact?.name || 'Contact';
+    showSuccess(`Response sent to ${name} successfully!`);
   };
 
   if (loading && contacts.length === 0) {

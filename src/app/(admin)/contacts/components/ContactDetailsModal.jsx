@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Modal, Button, Badge, Row, Col, Form, Alert, Spinner } from 'react-bootstrap';
+import { useNotificationContext } from '@/context/useNotificationContext';
 import { 
   CONTACT_STATUS_LABELS,
   CONTACT_STATUS_COLORS,
@@ -18,6 +19,7 @@ const ContactDetailsModal = ({
   onStatusUpdate, 
   onResponseSuccess 
 }) => {
+  const { showError } = useNotificationContext();
   const [response, setResponse] = useState('');
   const [sendingResponse, setSendingResponse] = useState(false);
   const [responseError, setResponseError] = useState(null);
@@ -74,11 +76,13 @@ const ContactDetailsModal = ({
       
       // Call success callback after a delay
       setTimeout(() => {
-        onResponseSuccess();
+        onResponseSuccess(contact.name);
       }, 1500);
     } catch (error) {
       console.error('Error sending response:', error);
-      setResponseError(error.response?.data?.message || 'Failed to send response');
+      const errorMsg = error.response?.data?.message || 'Failed to send response';
+      setResponseError(errorMsg);
+      showError(errorMsg);
     } finally {
       setSendingResponse(false);
     }
