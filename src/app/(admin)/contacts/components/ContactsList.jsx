@@ -49,6 +49,15 @@ const ContactsList = () => {
       setLoading(true);
       setError(null);
 
+      // Check authentication first
+      const token = localStorage.getItem('trasealla_token') || localStorage.getItem('token');
+      console.log('Current token:', token ? 'Token exists' : 'No token');
+      
+      if (!token) {
+        // setError('No authentication token found. Please login again.');
+        // return;
+      }
+
       const params = {
         page,
         limit: pagination.limit,
@@ -62,6 +71,7 @@ const ContactsList = () => {
         }
       });
 
+      console.log('Fetching contacts with params:', params);
       const response = await getContacts(params);
       
       setContacts(response.data.contacts || []);
@@ -73,7 +83,26 @@ const ContactsList = () => {
       });
     } catch (err) {
       console.error('Error fetching contacts:', err);
-      setError(err.response?.data?.message || 'Failed to fetch contacts');
+      console.error('Error details:', {
+        status: err.response?.status,
+        data: err.response?.data,
+        message: err.message
+      });
+      
+      if (err.response?.status === 401) {
+        setError('Authentication failed. Please login again.');
+        // Clear tokens and redirect to login
+        // localStorage.clear();
+        // window.location.href = '/auth/sign-in';
+      } else if (err.response?.status === 403 || err.message.includes('Access Denied')) {
+        setError('Access Denied: You do not have permission to access contacts. This feature requires admin privileges.');
+      } else if (err.message.includes('CORS')) {
+        setError('CORS Error: Please check your backend server CORS configuration. Make sure it allows requests from localhost:3000');
+      } else if (err.code === 'ERR_NETWORK') {
+        setError('Network Error: Cannot connect to backend server. Please ensure your backend is running on localhost:5001');
+      } else {
+        setError(err.response?.data?.message || err.message || 'Failed to fetch contacts');
+      }
     } finally {
       setLoading(false);
     }

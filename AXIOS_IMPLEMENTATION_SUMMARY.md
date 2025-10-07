@@ -17,7 +17,7 @@ Successfully integrated axios with automatic token refresh interceptors into the
 - Authentication helper functions
 - Token management (get/set/clear)
 - Session data management
-- Portal-based storage (`innov-{portal}`)
+- Portal-based storage (`trasealla-{portal}`)
 - Backward compatible with existing `trasealla_*` tokens
 - User information retrieval
 - Authentication status checking
@@ -93,7 +93,7 @@ Data          ↓
 
 1. **New Format** (for axios interceptor):
    ```javascript
-   innov-admin: {
+   trasealla-admin: {
      token: '...',
      unauthorized: false,
      userInfo: { ... }

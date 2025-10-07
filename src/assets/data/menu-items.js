@@ -218,7 +218,8 @@ export const MENU_ITEMS = [{
   key: 'contacts',
   label: 'Contacts',
   icon: 'solar:chat-round-outline',
-  url: '/contacts'
+  url: '/contacts',
+  requiredRoles: ['admin', 'superadmin']
 }, {
   key: 'reports',
   label: 'Reports & Analytics',

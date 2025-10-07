@@ -66,7 +66,7 @@ export const removeItem = (key) => {
  */
 export const getAuthToken = (portal = null) => {
   const portalName = portal || getPortal();
-  const sessionData = getItem(`innov-${portalName}`);
+  const sessionData = getItem(`trasealla-${portalName}`);
   
   if (!sessionData) {
     // Fallback to trasealla_token for backward compatibility
@@ -127,7 +127,7 @@ export const saveAuthSession = (data, portal = null) => {
     userInfo: user
   };
   
-  setItem(`innov-${portalName}`, JSON.stringify(sessionData));
+  setItem(`trasealla-${portalName}`, JSON.stringify(sessionData));
   
   // Backward compatibility with trasealla tokens
   setItem('trasealla_token', token);
@@ -147,7 +147,7 @@ export const clearAuthSession = (portal = null) => {
   const portalName = portal || getPortal();
   
   // Remove session data
-  removeItem(`innov-${portalName}`);
+  removeItem(`trasealla-${portalName}`);
   removeItem('refresh_token');
   removeItem('token');
   removeItem('portal');
@@ -166,7 +166,7 @@ export const clearAuthSession = (portal = null) => {
  */
 export const getCurrentUser = (portal = null) => {
   const portalName = portal || getPortal();
-  const sessionData = getItem(`innov-${portalName}`);
+  const sessionData = getItem(`trasealla-${portalName}`);
   
   if (!sessionData) {
     // Fallback to trasealla_user for backward compatibility

@@ -81,9 +81,9 @@ isAuthenticated(portal)
 
 The system uses a dual-storage approach:
 
-**New Format (innov-{portal}):**
+**New Format (trasealla-{portal}):**
 ```javascript
-localStorage.setItem('innov-admin', JSON.stringify({
+localStorage.setItem('trasealla-admin', JSON.stringify({
   token: 'eyJhbGc...',
   unauthorized: false,
   userInfo: { id: 1, name: 'John', role: 'admin' }
@@ -480,13 +480,13 @@ Much simpler! Token and headers are automatic.
 ### Issue: Token not being attached
 
 **Check:**
-1. Token is saved in localStorage as `innov-admin` or `trasealla_token`
+1. Token is saved in localStorage as `trasealla-admin` or `trasealla_token`
 2. Auth plugin is correctly reading the token
 3. Request interceptor is running
 
 **Debug:**
 ```javascript
-console.log(localStorage.getItem('innov-admin'));
+console.log(localStorage.getItem('trasealla-admin'));
 console.log(localStorage.getItem('token'));
 ```
 

@@ -19,10 +19,12 @@ const options = {
     environmentConfig.api_port || null
   ].filter(f => f).join(':') + '/',
   headers: {
-    'Access-Control-Allow-Origin': '*',
     'Content-Type': 'application/json',
+    'Accept': 'application/json',
     'timezone': getTimezone()
-  }
+  },
+  withCredentials: false, // Disable credentials for CORS
+  timeout: 10000 // 10 second timeout
 };
 
 // Add auth token if exists
@@ -39,7 +41,7 @@ const axiosInstance = axios.create(options);
 axiosInstance.interceptors.request.use(
   (config) => {
     const portal = getPortal();
-    const sessionData = getItem(`innov-${portal}`);
+    const sessionData = getItem(`trasealla-${portal}`);
     
     if (sessionData) {
       try {
@@ -93,7 +95,7 @@ axiosInstance.interceptors.response.use(
       // Use existing refresh promise if one is in progress
       if (!refreshPromise) {
         refreshPromise = new Promise(async (resolve, reject) => {
-          const refreshingToken = localStorage.getItem('refresh_token');
+          const refreshingToken = localStorage.getItem('refresh_token') || localStorage.getItem('trasealla_refresh_token');
           
           try {
             if (!refreshingToken) {
@@ -101,31 +103,34 @@ axiosInstance.interceptors.response.use(
             }
 
             // Call refresh token endpoint
-            const response = await axios.post(getBaseUrl() + 'auth/external/refresh-token', {
-              refresh_token: refreshingToken,
-              client: 'PORTAL'
+            const response = await axios.post(getBaseUrl() + 'auth/refresh', {
+              refreshToken: refreshingToken
+            }, {
+              headers: {
+                'Content-Type': 'application/json'
+              }
             });
 
             if (response && response.data) {
-              const { access_token, refresh_token } = response.data;
+              const { token, refreshToken } = response.data.data || response.data;
               
               // Update tokens in localStorage
-              setItem('refresh_token', refresh_token);
-              setItem('token', access_token);
+              setItem('refresh_token', refreshToken);
+              setItem('token', token);
               
               // Update session data
               const portal = getPortal();
-              const localSession = JSON.parse(getItem(`innov-${portal}`) || '{}');
-              localSession.token = access_token;
+              const localSession = JSON.parse(getItem(`trasealla-${portal}`) || '{}');
+              localSession.token = token;
               localSession.unauthorized = false;
               
-              setItem(`innov-${portal}`, JSON.stringify(localSession));
+              setItem(`trasealla-${portal}`, JSON.stringify(localSession));
               
               // Update trasealla tokens for backward compatibility
-              setItem('trasealla_token', access_token);
-              setItem('trasealla_refresh_token', refresh_token);
+              setItem('trasealla_token', token);
+              setItem('trasealla_refresh_token', refreshToken);
               
-              resolve(access_token);
+              resolve(token);
             } else {
               throw new Error('Invalid response from refresh token endpoint');
             }
@@ -152,7 +157,7 @@ axiosInstance.interceptors.response.use(
         
         // Update the original request with new token
         const portal = getPortal();
-        const sessionData = getItem(`innov-${portal}`);
+        const sessionData = getItem(`trasealla-${portal}`);
         
         if (sessionData) {
           const parsed = JSON.parse(sessionData);

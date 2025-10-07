@@ -17,10 +17,35 @@ import axiosInstance from '@/plugins/axios';
  */
 export const getContacts = async (params = {}) => {
   try {
-    const response = await axiosInstance.get('/contact', { params });
+    console.log('Fetching contacts with params:', params);
+    console.log('API Base URL:', axiosInstance.defaults.baseURL);
+    
+    const response = await axiosInstance.get('/contact', { 
+      params,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    });
+    
+    console.log('Contacts response:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error fetching contacts:', error);
+    console.error('Error response:', error.response?.data);
+    console.error('Error status:', error.response?.status);
+    console.error('Error config:', error.config);
+    
+    // Handle CORS errors specifically
+    if (error.code === 'ERR_NETWORK' || error.message.includes('CORS')) {
+      throw new Error('CORS error: Please check your backend CORS configuration');
+    }
+    
+    // Handle role-based authorization errors
+    if (error.response?.status === 403 && error.response?.data?.message?.includes('not authorized')) {
+      throw new Error('Access Denied: You do not have permission to access contacts. Admin role required.');
+    }
+    
     throw error;
   }
 };
