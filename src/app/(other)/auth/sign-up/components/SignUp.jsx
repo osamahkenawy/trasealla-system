@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import React, { useEffect } from 'react';
-import DarkLogo from '@/assets/images/logo-dark.png';
+import DarkLogo from '@/assets/images/TRASEALLA.png';
 import LightLogo from '@/assets/images/logo-light.png';
 import TextFormInput from '@/components/from/TextFormInput';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -39,7 +39,7 @@ const SignUp = () => {
                     <div className="text-center">
                       <div className="mx-auto mb-4 text-center auth-logo">
                         <Link href="/dashboards" className="logo-dark">
-                          <Image src={DarkLogo} height={32} alt="logo dark" />
+                          <Image src={DarkLogo} height={52} alt="logo dark" />
                         </Link>
                         <Link href="/" className="logo-light">
                           <Image src={LightLogo} height={28} alt="logo light" />

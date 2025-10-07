@@ -1,6 +1,6 @@
 'use client';
 
-import DarkLogo from '@/assets/images/logo-dark.png';
+import DarkLogo from '@/assets/images/TRASEALLA.png';
 import LightLogo from '@/assets/images/logo-light.png';
 import { useAuthContext } from '@/context/useAuthContext';
 import Image from 'next/image';
@@ -160,7 +160,7 @@ const SignIn = () => {
               <div className="logo-container">
                 <div className="mx-auto text-center auth-logo">
                   <Link href="/dashboards" className="logo-dark">
-                    <Image src={DarkLogo} height={32} alt="Trasealla Logo" />
+                    <Image src={DarkLogo} height={52} alt="Trasealla Logo" />
                   </Link>
                   <Link href="/dashboards" className="logo-light">
                     <Image src={LightLogo} height={28} alt="Trasealla Logo" />
@@ -290,7 +290,7 @@ const SignIn = () => {
               </Link>
             </div>
             <span className="powered-by-text">
-              © 2024 Trasealla. All rights reserved.
+              © {new Date().getFullYear()} Trasealla. All rights reserved.
             </span>
           </div>
         </div>

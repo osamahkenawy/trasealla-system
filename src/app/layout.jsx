@@ -1,12 +1,17 @@
 import '@/assets/scss/style.scss';
 import AppProvidersWrapper from '@/components/wrapper/AppProvidersWrapper';
 import { DEFAULT_PAGE_TITLE } from '@/context/constants';
-import { Roboto } from 'next/font/google';
+import { Roboto, Inter } from 'next/font/google';
 const roboto = Roboto({
   display: 'swap',
   style: ['normal', 'italic'],
   subsets: ['latin'],
   weight: ['100', '300', '400', '500', '700', '900']
+});
+const inter = Inter({
+  display: 'swap',
+  subsets: ['latin'],
+  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900']
 });
 export const metadata = {
   title: {
@@ -22,7 +27,7 @@ export default function RootLayout({
       <head>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
       </head>
-      <body className={roboto.className}>
+      <body className={`${roboto.className} ${inter.className}`}>
         <div id="__next_splash">
           <AppProvidersWrapper>{children}</AppProvidersWrapper>
         </div>
