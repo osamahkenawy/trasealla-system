@@ -30,6 +30,7 @@ export function middleware(request) {
                        pathname.startsWith('/apex-chart') || 
                        pathname.startsWith('/maps') || 
                        pathname.startsWith('/services') ||
+                       pathname.startsWith('/contacts') ||
                        pathname.match(/^\/(dark-mode|dark-sidenav|dark-topnav|hidden-sidenav|small-sidenav)/);
   
   // Redirect root to dashboards if authenticated, otherwise to sign-in

@@ -215,6 +215,11 @@ export const MENU_ITEMS = [{
   icon: 'solar:card-outline',
   url: '/management/payments'
 }, {
+  key: 'contacts',
+  label: 'Contacts',
+  icon: 'solar:chat-round-outline',
+  url: '/contacts'
+}, {
   key: 'reports',
   label: 'Reports & Analytics',
   icon: 'solar:chart-outline',
