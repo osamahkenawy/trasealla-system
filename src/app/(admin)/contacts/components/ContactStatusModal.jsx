@@ -38,6 +38,8 @@ const ContactStatusModal = ({ contact, show, onHide, onSuccess }) => {
           setUsers(response.data.users || []);
         } catch (error) {
           console.error('Error fetching users:', error);
+          // Set empty array if users fetch fails
+          setUsers([]);
         }
       };
 

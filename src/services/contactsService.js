@@ -123,10 +123,29 @@ export const getContactStats = async () => {
 export const getUsers = async () => {
   try {
     const response = await axiosInstance.get('/users');
+    
+    // Handle case where users endpoint is not implemented
+    if (response.data.message && response.data.message.includes('not implemented')) {
+      console.warn('Users API not implemented, returning empty array');
+      return {
+        success: true,
+        data: {
+          users: []
+        }
+      };
+    }
+    
     return response.data;
   } catch (error) {
     console.error('Error fetching users:', error);
-    throw error;
+    
+    // Return empty users array if endpoint fails
+    return {
+      success: true,
+      data: {
+        users: []
+      }
+    };
   }
 };
 

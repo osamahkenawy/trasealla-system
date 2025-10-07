@@ -20,6 +20,8 @@ const ContactsFilters = ({ filters, onFilterChange, loading }) => {
         setUsers(response.data.users || []);
       } catch (error) {
         console.error('Error fetching users:', error);
+        // Set empty array if users fetch fails
+        setUsers([]);
       }
     };
 
