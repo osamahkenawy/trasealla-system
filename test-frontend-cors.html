@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CORS Test</title>
+</head>
+<body>
+    <h1>CORS Test</h1>
+    <div id="results"></div>
+    
+    <script>
+        const resultsDiv = document.getElementById('results');
+        
+        function log(message, isError = false) {
+            const div = document.createElement('div');
+            div.style.color = isError ? 'red' : 'green';
+            div.style.margin = '10px 0';
+            div.innerHTML = message;
+            resultsDiv.appendChild(div);
+            console.log(message);
+        }
+        
+        async function testCORS() {
+            log('🔍 Testing CORS from browser...');
+            
+            try {
+                // Test 1: Basic fetch
+                log('📡 Test 1: Basic fetch to login endpoint...');
+                const response = await fetch('http://localhost:5001/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'test@test.com',
+                        password: 'test123'
+                    })
+                });
+                
+                log(`✅ Request successful! Status: ${response.status}`);
+                
+                const data = await response.text();
+                log(`Response: ${data}`);
+                
+            } catch (error) {
+                log(`❌ CORS Error: ${error.message}`, true);
+                
+                if (error.message.includes('CORS')) {
+                    log('💡 This is a CORS error. Check your backend CORS configuration.', true);
+                } else if (error.message.includes('Failed to fetch')) {
+                    log('💡 Network error. Make sure your backend server is running.', true);
+                }
+            }
+            
+            try {
+                // Test 2: With Origin header
+                log('📡 Test 2: Fetch with Origin header...');
+                const response = await fetch('http://localhost:5001/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Origin': 'http://localhost:3000'
+                    },
+                    body: JSON.stringify({
+                        email: 'test@test.com',
+                        password: 'test123'
+                    })
+                });
+                
+                log(`✅ Request with Origin successful! Status: ${response.status}`);
+                
+            } catch (error) {
+                log(`❌ CORS Error with Origin: ${error.message}`, true);
+            }
+        }
+        
+        // Run the test when page loads
+        window.onload = testCORS;
+    </script>
+</body>
+</html>

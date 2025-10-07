@@ -45,16 +45,16 @@ const NotificationAlert = ({
         <Toast 
           show={visible} 
           onClose={handleClose}
-          bg={type}
           autohide={duration > 0}
           delay={duration}
+          className={`custom-toast custom-toast-${type}`}
         >
-          <Toast.Header closeButton={true}>
+          <Toast.Header closeButton={true} className={`custom-toast-header custom-toast-header-${type}`}>
             <strong className="me-auto">
               {title || getDefaultTitle(type)}
             </strong>
           </Toast.Header>
-          <Toast.Body className={type === 'success' ? 'text-white' : ''}>
+          <Toast.Body className={`custom-toast-body custom-toast-body-${type}`}>
             {message}
           </Toast.Body>
         </Toast>
@@ -96,3 +96,35 @@ const getDefaultTitle = (type) => {
 };
 
 export default NotificationAlert;
+
+// Add some inline styles for better toast appearance
+const toastStyles = `
+  .custom-toast {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  
+  .custom-toast-header {
+    border-radius: 12px 12px 0 0;
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+  
+  .custom-toast-body {
+    padding: 12px 16px 16px 16px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  
+  .custom-toast .btn-close {
+    padding: 8px;
+    margin: -8px -8px -8px auto;
+  }
+`;
+
+// Inject styles if not already present
+if (typeof document !== 'undefined' && !document.getElementById('toast-custom-styles')) {
+  const styleSheet = document.createElement('style');
+  styleSheet.id = 'toast-custom-styles';
+  styleSheet.textContent = toastStyles;
+  document.head.appendChild(styleSheet);
+}

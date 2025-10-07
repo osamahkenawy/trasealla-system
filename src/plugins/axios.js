@@ -20,8 +20,7 @@ const options = {
   ].filter(f => f).join(':') + '/',
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json',
-    'timezone': getTimezone()
+    'Accept': 'application/json'
   },
   withCredentials: false, // Disable credentials for CORS
   timeout: 10000 // 10 second timeout
@@ -54,8 +53,8 @@ axiosInstance.interceptors.request.use(
       }
     }
     
-    // Add timezone to every request
-    config.headers['timezone'] = getTimezone();
+    // Add timezone to every request (only if backend supports it)
+    // config.headers['timezone'] = getTimezone();
     
     return config;
   },

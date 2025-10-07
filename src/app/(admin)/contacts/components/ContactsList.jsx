@@ -17,6 +17,8 @@ import ContactsFilters from './ContactsFilters';
 import ContactsStats from './ContactsStats';
 import ContactDetailsModal from './ContactDetailsModal';
 import ContactStatusModal from './ContactStatusModal';
+import ExportSidebar from '@/components/ExportSidebar';
+import IconActionButton from '@/components/IconActionButton';
 
 const ContactsList = () => {
   const { showSuccess, showError, showWarning, showInfo } = useNotificationContext();
@@ -45,6 +47,7 @@ const ContactsList = () => {
   const [selectedContact, setSelectedContact] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
+  const [showExportSidebar, setShowExportSidebar] = useState(false);
 
   // Fetch contacts
   const fetchContacts = async (page = 1) => {
@@ -206,6 +209,15 @@ const ContactsList = () => {
     showSuccess(`Response sent to ${name} successfully!`);
   };
 
+  // Export handlers
+  const handleExportContacts = () => {
+    setShowExportSidebar(true);
+  };
+
+  const handleExportSidebarClose = () => {
+    setShowExportSidebar(false);
+  };
+
   if (loading && contacts.length === 0) {
     return (
       <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '400px' }}>
@@ -222,6 +234,36 @@ const ContactsList = () => {
       <Row className="mb-4">
         <Col>
           <ContactsStats stats={stats} loading={statsLoading} />
+        </Col>
+      </Row>
+
+      {/* Action Buttons */}
+      <Row className="mb-4">
+        <Col>
+          <Card>
+            <CardBody>
+              <div className="d-flex justify-content-between align-items-center">
+                <div>
+                  <h5 className="mb-0">Contacts Management</h5>
+                  <small className="text-muted">
+                    {contacts.length} contacts found
+                  </small>
+                </div>
+                  <div className="d-flex gap-2">
+                    {/* Export Contacts Button */}
+                    <div className="d-flex align-items-center">
+                      <IconActionButton
+                        icon="csv"
+                        onClick={handleExportContacts}
+                        disabled={contacts.length === 0}
+                        title="Export Contacts Data"
+                      />
+                      <small className="ms-2 text-muted">Export Data</small>
+                    </div>
+                  </div>
+              </div>
+            </CardBody>
+          </Card>
         </Col>
       </Row>
 
@@ -289,6 +331,30 @@ const ContactsList = () => {
           onSuccess={handleStatusUpdateSuccess}
         />
       )}
+
+        {/* Export Sidebar */}
+        <ExportSidebar
+          show={showExportSidebar}
+          onHide={handleExportSidebarClose}
+          data={contacts}
+          title="Export Contacts Data"
+          description="Select the format you want to download the contacts data."
+          availableFields={[
+            { key: 'id', label: 'ID' },
+            { key: 'name', label: 'Name' },
+            { key: 'email', label: 'Email' },
+            { key: 'phone', label: 'Phone' },
+            { key: 'subject', label: 'Subject' },
+            { key: 'message', label: 'Message' },
+            { key: 'status', label: 'Status' },
+            { key: 'priority', label: 'Priority' },
+            { key: 'assigned_to', label: 'Assigned To' },
+            { key: 'created_at', label: 'Created Date' },
+            { key: 'updated_at', label: 'Updated Date' }
+          ]}
+          defaultFields={['id', 'name', 'email', 'phone', 'subject', 'status', 'priority', 'created_at']}
+          width={700}
+        />
     </div>
   );
 };
