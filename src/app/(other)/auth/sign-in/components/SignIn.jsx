@@ -2,29 +2,25 @@
 
 import DarkLogo from '@/assets/images/logo-dark.png';
 import LightLogo from '@/assets/images/logo-light.png';
-import TextFormInput from '@/components/from/TextFormInput';
-import PasswordFormInput from '@/components/from/PasswordFormInput';
 import { useAuthContext } from '@/context/useAuthContext';
-import { yupResolver } from '@hookform/resolvers/yup';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Alert, Card, CardBody, Col, Row, Spinner } from 'react-bootstrap';
-import { useForm } from 'react-hook-form';
-import * as yup from 'yup';
+import { Alert, Button, Carousel, Form } from 'react-bootstrap';
 
 const SignIn = () => {
   const router = useRouter();
   const { login, isAuthenticated, getRedirectPath } = useAuthContext();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
-
-  const messageSchema = yup.object({
-    email: yup.string().email('Invalid email format').required('Please enter Email'),
-    password: yup.string().min(6, 'Password must be at least 6 characters').required('Please enter password')
+  
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
   });
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [alertMessage, setAlertMessage] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -34,160 +30,269 @@ const SignIn = () => {
     }
   }, [isAuthenticated, router, getRedirectPath]);
 
-  useEffect(() => {
-    document.body.classList.add('authentication-bg');
-    return () => {
-      document.body.classList.remove('authentication-bg');
-    };
-  }, []);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Clear error for this field
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
 
-  const {
-    handleSubmit,
-    control,
-    formState: { errors: formErrors }
-  } = useForm({
-    defaultValues: {
-      email: '',
-      password: ''
-    },
-    resolver: yupResolver(messageSchema)
-  });
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Email is invalid';
+    }
+    
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
-  const handleLogin = async (data) => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
     setLoading(true);
-    setError(null);
-    setSuccess(false);
+    setAlertMessage(null);
 
     try {
-      const result = await login(data.email, data.password);
+      const result = await login(formData.email, formData.password);
 
       if (result.success) {
-        setSuccess(true);
-        setError(null);
+        setAlertMessage({
+          type: 'success',
+          message: 'Login successful! Redirecting...'
+        });
 
-        // Show success message briefly then redirect
+        // Redirect based on role
         setTimeout(() => {
           const redirectPath = getRedirectPath();
           router.push(redirectPath);
-        }, 1000);
+        }, 1500);
       } else {
-        setError(result.message || 'Login failed. Please check your credentials.');
-        setSuccess(false);
+        setAlertMessage({
+          type: 'danger',
+          message: result.message || 'Login failed. Please try again.'
+        });
       }
-    } catch (err) {
-      console.error('Login error:', err);
-      setError(err.message || 'An unexpected error occurred. Please try again.');
-      setSuccess(false);
+    } catch (error) {
+      console.error('Login error:', error);
+      
+      setAlertMessage({
+        type: 'danger',
+        message: error.message || 'Login failed. Please try again.'
+      });
     } finally {
       setLoading(false);
     }
   };
 
+  const handleForgotPassword = () => {
+    router.push('/auth/reset-password');
+  };
+
+  const handleRegister = () => {
+    router.push('/auth/sign-up');
+  };
+
+  const carouselItems = [
+    {
+      src: '/assets/images/admin-background.png',
+      subHeader: 'Your gateway to unforgettable adventures around the world'
+    }
+  ];
+
   return (
-    <div className="">
-      <div className="account-pages py-5">
-        <div className="container">
-          <Row className="justify-content-center">
-            <Col md={6} lg={5}>
-              <Card className="border-0 shadow-lg">
-                <CardBody className="p-5">
-                  <div className="text-center">
-                    <div className="mx-auto mb-4 text-center auth-logo">
-                      <a href="/" className="logo-dark">
-                        <Image src={DarkLogo} height={32} alt="logo dark" />
-                      </a>
-                      <a href="/" className="logo-light">
-                        <Image src={LightLogo} height={28} alt="logo light" />
-                      </a>
+    <div className="login-container">
+      {/* Left Sidebar with Carousel */}
+      <div className="carousel-sidebar">
+        <Carousel 
+          indicators={true} 
+          controls={false} 
+          interval={5000}
+          fade
+          className="h-100 auth-carousel"
+        >
+          {carouselItems.map((item, index) => (
+            <Carousel.Item key={index}>
+              <div
+                className="carousel-image-wrapped"
+                style={{ backgroundImage: `url(${item.src})` }}
+              >
+                <div className="content-overlay">
+                  {item.subHeader && (
+                    <div className="carousel-subheader">
+                      <p>{item.subHeader}</p>
                     </div>
-                    <h4 className="fw-bold text-dark mb-2">Welcome Back!</h4>
-                    <p className="text-muted">Sign in to your account to continue</p>
+                  )}
+                </div>
+              </div>
+            </Carousel.Item>
+          ))}
+        </Carousel>
+      </div>
+
+      {/* Right Panel with Login Form */}
+      <div className="login-panel">
+        <div className="login-content">
+          <div className="main-content-wrapper">
+            <div className="form-container">
+              {/* Logo */}
+              <div className="logo-container">
+                <div className="mx-auto text-center auth-logo">
+                  <Link href="/dashboards" className="logo-dark">
+                    <Image src={DarkLogo} height={32} alt="Trasealla Logo" />
+                  </Link>
+                  <Link href="/dashboards" className="logo-light">
+                    <Image src={LightLogo} height={28} alt="Trasealla Logo" />
+                  </Link>
+                </div>
+              </div>
+
+              {/* Alert Message */}
+              {alertMessage && (
+                <Alert 
+                  variant={alertMessage.type} 
+                  dismissible 
+                  onClose={() => setAlertMessage(null)}
+                  className="mb-3"
+                >
+                  {alertMessage.message}
+                </Alert>
+              )}
+
+              {/* Login Form */}
+              <Form onSubmit={handleSubmit} className="login-form">
+                <Form.Group className="mb-3" controlId="formEmail">
+                  <Form.Label className="field-label">
+                    Email Address
+                  </Form.Label>
+                  <Form.Control
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="Enter your email"
+                    isInvalid={!!errors.email}
+                    disabled={loading}
+                    className="form-input"
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    {errors.email}
+                  </Form.Control.Feedback>
+                </Form.Group>
+
+                <Form.Group className="mb-3" controlId="formPassword">
+                  <Form.Label className="field-label">
+                    Password
+                  </Form.Label>
+                  <div className="password-input-wrapper">
+                    <Form.Control
+                      type={showPassword ? 'text' : 'password'}
+                      name="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      placeholder="Enter your password"
+                      isInvalid={!!errors.password}
+                      disabled={loading}
+                      className="form-input"
+                    />
+                    <button
+                      type="button"
+                      className="password-toggle-btn"
+                      onClick={() => setShowPassword(!showPassword)}
+                      tabIndex="-1"
+                    >
+                      <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
+                    </button>
                   </div>
+                  <Form.Control.Feedback type="invalid">
+                    {errors.password}
+                  </Form.Control.Feedback>
+                </Form.Group>
 
-                  {/* Error Alert */}
-                  {error && (
-                    <Alert variant="danger" dismissible onClose={() => setError(null)} className="mt-3">
-                      {error}
-                    </Alert>
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <Form.Check 
+                    type="checkbox" 
+                    label="Remember me"
+                    className="remember-me-check"
+                  />
+                  <Button 
+                    variant="link" 
+                    className="forgot-password-link"
+                    onClick={handleForgotPassword}
+                    disabled={loading}
+                  >
+                    Forgot Password?
+                  </Button>
+                </div>
+
+                <Button 
+                  variant="primary" 
+                  type="submit" 
+                  className="w-100 login-btn"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                      Signing in...
+                    </>
+                  ) : (
+                    'Sign In'
                   )}
+                </Button>
 
-                  {/* Success Alert */}
-                  {success && (
-                    <Alert variant="success" className="mt-3">
-                      Login successful! Redirecting...
-                    </Alert>
-                  )}
+                <div className="text-center mt-3">
+                  <span className="no-account-text">
+                    Don&apos;t have an account?{' '}
+                  </span>
+                  <Button 
+                    variant="link" 
+                    className="register-link"
+                    onClick={handleRegister}
+                    disabled={loading}
+                  >
+                    Register Now
+                  </Button>
+                </div>
+              </Form>
+            </div>
+          </div>
 
-                  <form onSubmit={handleSubmit(handleLogin)} className="mt-4">
-                    <div className="mb-3">
-                      <TextFormInput 
-                        control={control} 
-                        name="email" 
-                        placeholder="Enter your email" 
-                        className="form-control" 
-                        label="Email Address"
-                        disabled={loading}
-                      />
-                    </div>
-                    <div className="mb-3">
-                      <Link href="/auth/reset-password" className="float-end text-muted ms-1">
-                        Forgot password?{' '}
-                      </Link>
-                      <PasswordFormInput 
-                        control={control} 
-                        name="password" 
-                        placeholder="Enter your password" 
-                        className="form-control" 
-                        label="Password"
-                        disabled={loading}
-                      />
-                    </div>
-
-                    <div className="form-check mb-3">
-                      <input 
-                        type="checkbox" 
-                        className="form-check-input" 
-                        id="remember-me"
-                        disabled={loading}
-                      />
-                      <label className="form-check-label" htmlFor="remember-me">
-                        Remember me
-                      </label>
-                    </div>
-                    <div className="d-grid">
-                      <button 
-                        className="btn btn-dark btn-lg fw-medium" 
-                        type="submit"
-                        disabled={loading}
-                      >
-                        {loading ? (
-                          <>
-                            <Spinner
-                              as="span"
-                              animation="border"
-                              size="sm"
-                              role="status"
-                              aria-hidden="true"
-                              className="me-2"
-                            />
-                            Signing in...
-                          </>
-                        ) : (
-                          'Sign In'
-                        )}
-                      </button>
-                    </div>
-                  </form>
-                </CardBody>
-              </Card>
-              <p className="text-center mt-4 text-white text-opacity-50">
-                Don&apos;t have an account?{' '}
-                <Link href="/auth/sign-up" className="text-decoration-none text-white fw-bold ms-1">
-                  Sign Up
-                </Link>
-              </p>
-            </Col>
-          </Row>
+          {/* Footer with Logo */}
+          <div className="login-footer">
+            <div className="mx-auto text-center auth-logo mb-2" style={{ width: '40px' }}>
+              <Link href="/dashboards" className="logo-dark">
+                <Image src={DarkLogo} height={32} alt="logo" className="footer-logo" />
+              </Link>
+              <Link href="/dashboards" className="logo-light">
+                <Image src={LightLogo} height={28} alt="logo" className="footer-logo" />
+              </Link>
+            </div>
+            <span className="powered-by-text">
+              © 2024 Trasealla. All rights reserved.
+            </span>
+          </div>
         </div>
       </div>
     </div>
