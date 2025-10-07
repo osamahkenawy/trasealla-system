@@ -1,0 +1,148 @@
+/**
+ * Stat Card Component Styles
+ * Matches the Vue.js custom card design
+ */
+
+.custom-stat-card {
+  border-radius: 12px;
+  border: 1px solid #EAECF0;
+  background: #FFF;
+  box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05);
+  padding: 16px;
+  border: 0;
+  box-shadow: none;
+
+  .content-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .left-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex-grow: 1;
+  }
+
+  .title {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 4px;
+    color: #344054;
+    line-height: 1.4;
+  }
+
+  .value {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 0;
+  }
+
+  .image-wrapper {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1px solid #D1E9FF;
+    background: #F0F9FF;
+    width: 48px;
+    height: 48px;
+    margin-left: 16px;
+  }
+
+  .image-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+  }
+}
+
+// Color variants for different stat types
+.custom-stat-card {
+  &.primary {
+    .image-wrapper {
+      border-color: #D1E9FF;
+      background: #F0F9FF;
+    }
+  }
+
+  &.success {
+    .image-wrapper {
+      border-color: #D1FADF;
+      background: #F0FDF4;
+    }
+  }
+
+  &.warning {
+    .image-wrapper {
+      border-color: #FEF3C7;
+      background: #FFFBEB;
+    }
+  }
+
+  &.danger {
+    .image-wrapper {
+      border-color: #FECACA;
+      background: #FEF2F2;
+    }
+  }
+
+  &.info {
+    .image-wrapper {
+      border-color: #C7D2FE;
+      background: #EEF2FF;
+    }
+  }
+
+  &.secondary {
+    .image-wrapper {
+      border-color: #E5E7EB;
+      background: #F9FAFB;
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .custom-stat-card {
+    padding: 12px;
+
+    .title {
+      font-size: 14px;
+    }
+
+    .value {
+      font-size: 20px;
+    }
+
+    .image-wrapper {
+      width: 40px;
+      height: 40px;
+      margin-left: 12px;
+    }
+
+    .image-icon {
+      width: 20px;
+      height: 20px;
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .custom-stat-card {
+    .content-wrapper {
+      flex-direction: column;
+      align-items: flex-start;
+      text-align: left;
+    }
+
+    .image-wrapper {
+      margin-left: 0;
+      margin-top: 8px;
+      align-self: flex-end;
+    }
+  }
+}
