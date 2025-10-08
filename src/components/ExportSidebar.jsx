@@ -67,7 +67,8 @@ const ExportSidebar = ({
           data,
           selectedFields,
           selectedFormat,
-          title
+          title,
+          availableFields
         });
         
         if (result.success) {
@@ -78,22 +79,14 @@ const ExportSidebar = ({
         }
       } else {
         // Default export behavior
-        const filteredData = data.map(item => {
-          const filtered = {};
-          selectedFields.forEach(field => {
-            filtered[field] = item[field];
-          });
-          return filtered;
-        });
-
         let result;
         const timestamp = new Date().toISOString().split('T')[0];
         const filename = `${title.toLowerCase().replace(/\s+/g, '-')}-${timestamp}`;
 
         if (selectedFormat === 'pdf') {
-          result = exportToPDF(filteredData, filename);
+          result = exportToPDF(data, filename, selectedFields, availableFields);
         } else if (selectedFormat === 'excel') {
-          result = exportToExcel(filteredData, filename);
+          result = exportToExcel(data, filename, selectedFields, availableFields);
         }
 
         if (result.success) {
@@ -148,7 +141,7 @@ const ExportSidebar = ({
                 </h6>
                 <p className="mb-0 text-muted small">
                   {data.length > 0 
-                    ? `${data.length} records will be exported`
+                    ? 'Data will be exported based on your selection'
                     : 'No data is selected.'
                   }
                 </p>
@@ -157,7 +150,7 @@ const ExportSidebar = ({
                     <div className="d-flex align-items-center">
                       <i className="bi bi-lightbulb me-2" style={{ color: '#ffc107' }}></i>
                       <small className="text-muted">
-                        <strong>Tip:</strong> Select specific records in the table to export only those items.
+                        <strong>Tip:</strong> All available data will be exported based on your field selection.
                       </small>
                     </div>
                   </div>

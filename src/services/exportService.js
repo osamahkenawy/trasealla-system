@@ -7,8 +7,58 @@ import * as XLSX from 'xlsx';
  * Handles exporting contacts data in various formats
  */
 
+// Helper function to format dates
+const formatDate = (dateString) => {
+  try {
+    if (!dateString) return '-';
+    
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '-';
+    
+    // Format as MM/DD/YYYY
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
+  } catch (error) {
+    console.warn('Date formatting error:', error);
+    return '-';
+  }
+};
+
+// Helper function to format field values
+const formatFieldValue = (contact, fieldKey) => {
+  switch (fieldKey) {
+    case 'id':
+      return contact.id || '-';
+    case 'name':
+      return contact.name || '-';
+    case 'email':
+      return contact.email || '-';
+    case 'phone':
+      return contact.phone || '-';
+    case 'subject':
+      return contact.subject || '-';
+    case 'message':
+      return contact.message ? contact.message.substring(0, 50) + '...' : '-';
+    case 'status':
+      return contact.status || '-';
+    case 'priority':
+      return contact.priority || '-';
+    case 'assigned_to':
+      return contact.assigned_to || '-';
+    case 'created_at':
+      return contact.created_at ? formatDate(contact.created_at) : '-';
+    case 'updated_at':
+      return contact.updated_at ? formatDate(contact.updated_at) : '-';
+    default:
+      return contact[fieldKey] || '-';
+  }
+};
+
 // PDF Export Functions
-export const exportToPDF = (data, filename = 'contacts-export') => {
+export const exportToPDF = (data, filename = 'contacts-export', selectedFields = null, availableFields = null) => {
   try {
     const doc = new jsPDF('landscape', 'mm', 'a4');
     
@@ -32,34 +82,51 @@ export const exportToPDF = (data, filename = 'contacts-export') => {
       console.warn('Logo not found, continuing without logo');
     }
     
-    // Prepare table data
-    const headers = [
-      'ID',
-      'Name', 
-      'Email',
-      'Phone',
-      'Subject',
-      'Message',
-      'Status',
-      'Priority',
-      'Assigned To',
-      'Created Date',
-      'Updated Date'
-    ];
+    // Prepare table data based on selected fields
+    let headers, tableData;
     
-    const tableData = data.map(contact => [
-      contact.id || '-',
-      contact.name || '-',
-      contact.email || '-',
-      contact.phone || '-',
-      contact.subject || '-',
-      contact.message ? contact.message.substring(0, 50) + '...' : '-',
-      contact.status || '-',
-      contact.priority || '-',
-      contact.assigned_to || '-',
-      contact.created_at ? new Date(contact.created_at).toLocaleDateString() : '-',
-      contact.updated_at ? new Date(contact.updated_at).toLocaleDateString() : '-'
-    ]);
+    if (selectedFields && availableFields) {
+      // Use selected fields
+      headers = selectedFields.map(fieldKey => {
+        const field = availableFields.find(f => f.key === fieldKey);
+        return field ? field.label : fieldKey;
+      });
+      
+      tableData = data.map(contact => {
+        return selectedFields.map(fieldKey => {
+          return formatFieldValue(contact, fieldKey);
+        });
+      });
+    } else {
+      // Fallback to default fields
+      headers = [
+        'ID',
+        'Name', 
+        'Email',
+        'Phone',
+        'Subject',
+        'Message',
+        'Status',
+        'Priority',
+        'Assigned To',
+        'Created Date',
+        'Updated Date'
+      ];
+      
+      tableData = data.map(contact => [
+        contact.id || '-',
+        contact.name || '-',
+        contact.email || '-',
+        contact.phone || '-',
+        contact.subject || '-',
+        contact.message ? contact.message.substring(0, 50) + '...' : '-',
+        contact.status || '-',
+        contact.priority || '-',
+        contact.assigned_to || '-',
+        contact.created_at ? formatDate(contact.created_at) : '-',
+        contact.updated_at ? formatDate(contact.updated_at) : '-'
+      ]);
+    }
     
     // Generate table using autoTable
     doc.autoTable({
@@ -122,22 +189,38 @@ export const exportToPDF = (data, filename = 'contacts-export') => {
 };
 
 // Excel Export Functions
-export const exportToExcel = (data, filename = 'contacts-export') => {
+export const exportToExcel = (data, filename = 'contacts-export', selectedFields = null, availableFields = null) => {
   try {
-    // Prepare data for Excel
-    const excelData = data.map(contact => ({
-      'ID': contact.id || '',
-      'Name': contact.name || '',
-      'Email': contact.email || '',
-      'Phone': contact.phone || '',
-      'Subject': contact.subject || '',
-      'Message': contact.message || '',
-      'Status': contact.status || '',
-      'Priority': contact.priority || '',
-      'Assigned To': contact.assigned_to || '',
-      'Created Date': contact.created_at ? new Date(contact.created_at).toLocaleDateString() : '',
-      'Updated Date': contact.updated_at ? new Date(contact.updated_at).toLocaleDateString() : ''
-    }));
+    // Prepare data for Excel based on selected fields
+    let excelData;
+    
+    if (selectedFields && availableFields) {
+      // Use selected fields
+      excelData = data.map(contact => {
+        const row = {};
+        selectedFields.forEach(fieldKey => {
+          const field = availableFields.find(f => f.key === fieldKey);
+          const label = field ? field.label : fieldKey;
+          row[label] = formatFieldValue(contact, fieldKey);
+        });
+        return row;
+      });
+    } else {
+      // Fallback to default fields
+      excelData = data.map(contact => ({
+        'ID': contact.id || '',
+        'Name': contact.name || '',
+        'Email': contact.email || '',
+        'Phone': contact.phone || '',
+        'Subject': contact.subject || '',
+        'Message': contact.message || '',
+        'Status': contact.status || '',
+        'Priority': contact.priority || '',
+        'Assigned To': contact.assigned_to || '',
+        'Created Date': contact.created_at ? formatDate(contact.created_at) : '',
+        'Updated Date': contact.updated_at ? formatDate(contact.updated_at) : ''
+      }));
+    }
     
     // Create workbook and worksheet
     const wb = XLSX.utils.book_new();
