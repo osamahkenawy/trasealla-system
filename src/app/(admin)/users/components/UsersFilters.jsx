@@ -1,18 +1,30 @@
 'use client';
 
-import React from 'react';
-import { Row, Col, Form, Button } from 'react-bootstrap';
+import React, { useState } from 'react';
+import { Row, Col, Form, Button, InputGroup } from 'react-bootstrap';
 import { 
   USER_ROLE_LABELS, 
   USER_STATUS_LABELS 
 } from '@/services/usersService';
 
 const UsersFilters = ({ filters, onFilterChange, loading }) => {
+  const [searchInput, setSearchInput] = useState(filters.search || '');
+
   const handleInputChange = (field, value) => {
     onFilterChange({ [field]: value });
   };
 
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    onFilterChange({ search: searchInput });
+  };
+
+  const handleSearchInputChange = (value) => {
+    setSearchInput(value);
+  };
+
   const clearFilters = () => {
+    setSearchInput('');
     onFilterChange({
       role: '',
       status: '',
@@ -28,13 +40,28 @@ const UsersFilters = ({ filters, onFilterChange, loading }) => {
         <Col md={3}>
           <Form.Group>
             <Form.Label>Search Users</Form.Label>
-            <Form.Control
-              type="text"
-              placeholder="Search by name, email..."
-              value={filters.search}
-              onChange={(e) => handleInputChange('search', e.target.value)}
-              disabled={loading}
-            />
+            <InputGroup>
+              <Form.Control
+                type="text"
+                placeholder="Search by name, email..."
+                value={searchInput}
+                onChange={(e) => handleSearchInputChange(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    handleSearchSubmit(e);
+                  }
+                }}
+                disabled={loading}
+              />
+              <Button 
+                variant="primary" 
+                onClick={handleSearchSubmit}
+                disabled={loading}
+                title="Search"
+              >
+                <i className="bi bi-search"></i>
+              </Button>
+            </InputGroup>
           </Form.Group>
         </Col>
 
@@ -98,7 +125,10 @@ const UsersFilters = ({ filters, onFilterChange, loading }) => {
                   <button
                     type="button"
                     className="btn-close btn-close-white ms-1"
-                    onClick={() => handleInputChange('search', '')}
+                    onClick={() => {
+                      setSearchInput('');
+                      handleInputChange('search', '');
+                    }}
                     style={{ fontSize: '0.7em' }}
                   />
                 </span>
