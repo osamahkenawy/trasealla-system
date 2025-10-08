@@ -15,12 +15,20 @@ const formatDate = (dateString) => {
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return '-';
     
-    // Format as MM/DD/YYYY
-    return date.toLocaleDateString('en-US', {
+    // Format as MM/DD/YYYY HH:MM AM/PM
+    const dateStr = date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit'
     });
+    
+    const timeStr = date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+    
+    return `${dateStr} ${timeStr}`;
   } catch (error) {
     console.warn('Date formatting error:', error);
     return '-';
@@ -47,11 +55,11 @@ const formatFieldValue = (contact, fieldKey) => {
     case 'priority':
       return contact.priority || '-';
     case 'assigned_to':
-      return contact.assigned_to || '-';
+      return contact.assignedTo || contact.assigned_to || '-';
     case 'created_at':
-      return contact.created_at ? formatDate(contact.created_at) : '-';
+      return contact.createdAt || contact.created_at ? formatDate(contact.createdAt || contact.created_at) : '-';
     case 'updated_at':
-      return contact.updated_at ? formatDate(contact.updated_at) : '-';
+      return contact.updatedAt || contact.updated_at ? formatDate(contact.updatedAt || contact.updated_at) : '-';
     default:
       return contact[fieldKey] || '-';
   }
@@ -122,11 +130,55 @@ export const exportToPDF = (data, filename = 'contacts-export', selectedFields =
         contact.message ? contact.message.substring(0, 50) + '...' : '-',
         contact.status || '-',
         contact.priority || '-',
-        contact.assigned_to || '-',
-        contact.created_at ? formatDate(contact.created_at) : '-',
-        contact.updated_at ? formatDate(contact.updated_at) : '-'
+        contact.assignedTo || contact.assigned_to || '-',
+        contact.createdAt || contact.created_at ? formatDate(contact.createdAt || contact.created_at) : '-',
+        contact.updatedAt || contact.updated_at ? formatDate(contact.updatedAt || contact.updated_at) : '-'
       ]);
     }
+    
+    // Calculate full table width (page width minus margins)
+    const docPageWidth = doc.internal.pageSize.getWidth();
+    const leftMargin = 20;
+    const rightMargin = 20;
+    const fullTableWidth = docPageWidth - leftMargin - rightMargin;
+    
+    // Dynamic column width calculation based on selected fields
+    const generateColumnStyles = (numColumns) => {
+      const columnStyles = {};
+      const equalWidth = fullTableWidth / numColumns;
+      
+      // Define priority widths for specific field types
+      const fieldWidths = {
+        'id': 0.06,           // ID - smaller
+        'name': 0.15,         // Name
+        'email': 0.20,        // Email
+        'phone': 0.12,        // Phone
+        'subject': 0.20,      // Subject
+        'message': 0.25,      // Message
+        'status': 0.10,       // Status
+        'priority': 0.10,     // Priority
+        'assigned_to': 0.15,  // Assigned To
+        'created_at': 0.15,   // Created Date
+        'updated_at': 0.15    // Updated Date
+      };
+      
+      if (selectedFields && availableFields) {
+        // Use specific field widths when fields are selected
+        selectedFields.forEach((fieldKey, index) => {
+          const field = availableFields.find(f => f.key === fieldKey);
+          const fieldName = field ? field.key : fieldKey;
+          const widthRatio = fieldWidths[fieldName] || (1 / numColumns);
+          columnStyles[index] = { cellWidth: fullTableWidth * widthRatio };
+        });
+      } else {
+        // Use equal distribution for default fields
+        for (let i = 0; i < numColumns; i++) {
+          columnStyles[i] = { cellWidth: equalWidth };
+        }
+      }
+      
+      return columnStyles;
+    };
     
     // Generate table using autoTable
     doc.autoTable({
@@ -138,30 +190,20 @@ export const exportToPDF = (data, filename = 'contacts-export', selectedFields =
         fontSize: 8,
         cellPadding: 3,
         overflow: 'linebreak',
-        valign: 'top'
+        valign: 'top',
+        halign: 'left'
       },
       headStyles: {
         fillColor: [28, 55, 93], // #1B365D
         textColor: 255,
         fontStyle: 'bold',
-        fontSize: 9
+        fontSize: 9,
+        halign: 'center'
       },
-      columnStyles: {
-        0: { cellWidth: 15 }, // ID
-        1: { cellWidth: 25 }, // Name
-        2: { cellWidth: 30 }, // Email
-        3: { cellWidth: 20 }, // Phone
-        4: { cellWidth: 30 }, // Subject
-        5: { cellWidth: 40 }, // Message
-        6: { cellWidth: 20 }, // Status
-        7: { cellWidth: 20 }, // Priority
-        8: { cellWidth: 25 }, // Assigned To
-        9: { cellWidth: 25 }, // Created Date
-        10: { cellWidth: 25 } // Updated Date
-      },
-      margin: { top: 40, right: 20, bottom: 20, left: 20 },
-      tableWidth: 'auto',
-      showHead: 'everyPage'
+      margin: { top: 40, right: rightMargin, bottom: 20, left: leftMargin },
+      tableWidth: fullTableWidth, // Force full width
+      showHead: 'everyPage',
+      columnStyles: generateColumnStyles(headers.length)
     });
     
     // Add footer with page numbers
@@ -216,9 +258,9 @@ export const exportToExcel = (data, filename = 'contacts-export', selectedFields
         'Message': contact.message || '',
         'Status': contact.status || '',
         'Priority': contact.priority || '',
-        'Assigned To': contact.assigned_to || '',
-        'Created Date': contact.created_at ? formatDate(contact.created_at) : '',
-        'Updated Date': contact.updated_at ? formatDate(contact.updated_at) : ''
+        'Assigned To': contact.assignedTo || contact.assigned_to || '',
+        'Created Date': contact.createdAt || contact.created_at ? formatDate(contact.createdAt || contact.created_at) : '',
+        'Updated Date': contact.updatedAt || contact.updated_at ? formatDate(contact.updatedAt || contact.updated_at) : ''
       }));
     }
     
