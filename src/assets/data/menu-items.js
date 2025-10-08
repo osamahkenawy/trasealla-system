@@ -221,6 +221,12 @@ export const MENU_ITEMS = [{
   url: '/contacts',
   requiredRoles: ['admin', 'superadmin']
 }, {
+  key: 'users',
+  label: 'Users',
+  icon: 'solar:user-circle-outline',
+  url: '/users',
+  requiredRoles: ['admin', 'superadmin']
+}, {
   key: 'reports',
   label: 'Reports & Analytics',
   icon: 'solar:chart-outline',

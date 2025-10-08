@@ -36,37 +36,77 @@ const formatDate = (dateString) => {
 };
 
 // Helper function to format field values
-const formatFieldValue = (contact, fieldKey) => {
-  switch (fieldKey) {
-    case 'id':
-      return contact.id || '-';
-    case 'name':
-      return contact.name || '-';
-    case 'email':
-      return contact.email || '-';
-    case 'phone':
-      return contact.phone || '-';
-    case 'subject':
-      return contact.subject || '-';
-    case 'message':
-      return contact.message ? contact.message.substring(0, 50) + '...' : '-';
-    case 'status':
-      return contact.status || '-';
-    case 'priority':
-      return contact.priority || '-';
-    case 'assigned_to':
-      return contact.assignedTo || contact.assigned_to || '-';
-    case 'created_at':
-      return contact.createdAt || contact.created_at ? formatDate(contact.createdAt || contact.created_at) : '-';
-    case 'updated_at':
-      return contact.updatedAt || contact.updated_at ? formatDate(contact.updatedAt || contact.updated_at) : '-';
-    default:
-      return contact[fieldKey] || '-';
+const formatFieldValue = (item, fieldKey, itemType = 'contact') => {
+  if (itemType === 'user') {
+    switch (fieldKey) {
+      case 'id':
+        return item.id || '-';
+      case 'firstName':
+        return item.firstName || '-';
+      case 'lastName':
+        return item.lastName || '-';
+      case 'name':
+        return `${item.firstName || ''} ${item.lastName || ''}`.trim() || '-';
+      case 'email':
+        return item.email || '-';
+      case 'phone':
+        return item.phone || '-';
+      case 'role':
+        return item.role || '-';
+      case 'isActive':
+        return item.isActive ? 'Yes' : 'No';
+      case 'isEmailVerified':
+        return item.isEmailVerified ? 'Verified' : 'Unverified';
+      case 'dateOfBirth':
+        return item.dateOfBirth || '-';
+      case 'nationality':
+        return item.nationality || '-';
+      case 'address':
+        return item.address || '-';
+      case 'city':
+        return item.city || '-';
+      case 'country':
+        return item.country || '-';
+      case 'created_at':
+        return item.createdAt || item.created_at ? formatDate(item.createdAt || item.created_at) : '-';
+      case 'updated_at':
+        return item.updatedAt || item.updated_at ? formatDate(item.updatedAt || item.updated_at) : '-';
+      default:
+        return item[fieldKey] || '-';
+    }
+  } else {
+    // Original contact logic
+    switch (fieldKey) {
+      case 'id':
+        return item.id || '-';
+      case 'name':
+        return item.name || '-';
+      case 'email':
+        return item.email || '-';
+      case 'phone':
+        return item.phone || '-';
+      case 'subject':
+        return item.subject || '-';
+      case 'message':
+        return item.message ? item.message.substring(0, 50) + '...' : '-';
+      case 'status':
+        return item.status || '-';
+      case 'priority':
+        return item.priority || '-';
+      case 'assigned_to':
+        return item.assignedTo || item.assigned_to || '-';
+      case 'created_at':
+        return item.createdAt || item.created_at ? formatDate(item.createdAt || item.created_at) : '-';
+      case 'updated_at':
+        return item.updatedAt || item.updated_at ? formatDate(item.updatedAt || item.updated_at) : '-';
+      default:
+        return item[fieldKey] || '-';
+    }
   }
 };
 
 // PDF Export Functions
-export const exportToPDF = (data, filename = 'contacts-export', selectedFields = null, availableFields = null) => {
+export const exportToPDF = (data, filename = 'contacts-export', selectedFields = null, availableFields = null, itemType = 'contact') => {
   try {
     const doc = new jsPDF('landscape', 'mm', 'a4');
     
@@ -100,9 +140,9 @@ export const exportToPDF = (data, filename = 'contacts-export', selectedFields =
         return field ? field.label : fieldKey;
       });
       
-      tableData = data.map(contact => {
+      tableData = data.map(item => {
         return selectedFields.map(fieldKey => {
-          return formatFieldValue(contact, fieldKey);
+          return formatFieldValue(item, fieldKey, itemType);
         });
       });
     } else {
@@ -112,27 +152,25 @@ export const exportToPDF = (data, filename = 'contacts-export', selectedFields =
         'Name', 
         'Email',
         'Phone',
-        'Subject',
-        'Message',
-        'Status',
+        'Role',
+        'Is Active',
+        'Email Verified',
         'Priority',
-        'Assigned To',
         'Created Date',
         'Updated Date'
       ];
       
-      tableData = data.map(contact => [
-        contact.id || '-',
-        contact.name || '-',
-        contact.email || '-',
-        contact.phone || '-',
-        contact.subject || '-',
-        contact.message ? contact.message.substring(0, 50) + '...' : '-',
-        contact.status || '-',
-        contact.priority || '-',
-        contact.assignedTo || contact.assigned_to || '-',
-        contact.createdAt || contact.created_at ? formatDate(contact.createdAt || contact.created_at) : '-',
-        contact.updatedAt || contact.updated_at ? formatDate(contact.updatedAt || contact.updated_at) : '-'
+      tableData = data.map(item => [
+        item.id || '-',
+        itemType === 'user' ? `${item.firstName || ''} ${item.lastName || ''}`.trim() || '-' : item.name || '-',
+        item.email || '-',
+        item.phone || '-',
+        itemType === 'user' ? (item.role || '-') : (item.subject || '-'),
+        itemType === 'user' ? (item.isActive ? 'Yes' : 'No') : (item.message ? item.message.substring(0, 50) + '...' : '-'),
+        itemType === 'user' ? (item.isEmailVerified ? 'Verified' : 'Unverified') : (item.status || '-'),
+        itemType === 'user' ? '' : (item.priority || '-'),
+        item.createdAt || item.created_at ? formatDate(item.createdAt || item.created_at) : '-',
+        item.updatedAt || item.updated_at ? formatDate(item.updatedAt || item.updated_at) : '-'
       ]);
     }
     
@@ -231,36 +269,37 @@ export const exportToPDF = (data, filename = 'contacts-export', selectedFields =
 };
 
 // Excel Export Functions
-export const exportToExcel = (data, filename = 'contacts-export', selectedFields = null, availableFields = null) => {
+export const exportToExcel = (data, filename = 'contacts-export', selectedFields = null, availableFields = null, itemType = 'contact') => {
   try {
     // Prepare data for Excel based on selected fields
     let excelData;
     
     if (selectedFields && availableFields) {
       // Use selected fields
-      excelData = data.map(contact => {
+      excelData = data.map(item => {
         const row = {};
         selectedFields.forEach(fieldKey => {
           const field = availableFields.find(f => f.key === fieldKey);
           const label = field ? field.label : fieldKey;
-          row[label] = formatFieldValue(contact, fieldKey);
+          row[label] = formatFieldValue(item, fieldKey, itemType);
         });
         return row;
       });
     } else {
       // Fallback to default fields
-      excelData = data.map(contact => ({
-        'ID': contact.id || '',
-        'Name': contact.name || '',
-        'Email': contact.email || '',
-        'Phone': contact.phone || '',
-        'Subject': contact.subject || '',
-        'Message': contact.message || '',
-        'Status': contact.status || '',
-        'Priority': contact.priority || '',
-        'Assigned To': contact.assignedTo || contact.assigned_to || '',
-        'Created Date': contact.createdAt || contact.created_at ? formatDate(contact.createdAt || contact.created_at) : '',
-        'Updated Date': contact.updatedAt || contact.updated_at ? formatDate(contact.updatedAt || contact.updated_at) : ''
+      excelData = data.map(item => ({
+        'ID': item.id || '',
+        'Name': itemType === 'user' ? `${item.firstName || ''} ${item.lastName || ''}`.trim() || '' : item.name || '',
+        'Email': item.email || '',
+        'Phone': item.phone || '',
+        'Subject/Role': itemType === 'user' ? (item.role || '') : (item.subject || ''),
+        'Message/IsActive': itemType === 'user' ? (item.isActive ? 'Yes' : 'No') : (item.message || ''),
+        'Status/EmailVerified': itemType === 'user' ? (item.isEmailVerified ? 'Verified' : 'Unverified') : (item.status || ''),
+        'Priority': itemType === 'user' ? '' : (item.priority || ''),
+        'Assigned To/DateOfBirth': itemType === 'user' ? (item.dateOfBirth || '') : (item.assignedTo || item.assigned_to || ''),
+        'Created Date/Nationality': itemType === 'user' ? (item.nationality || '') : (item.createdAt || item.created_at ? formatDate(item.createdAt || item.created_at) : ''),
+        'Created Date': item.createdAt || item.created_at ? formatDate(item.createdAt || item.created_at) : '',
+        'Updated Date': item.updatedAt || item.updated_at ? formatDate(item.updatedAt || item.updated_at) : ''
       }));
     }
     

@@ -19,6 +19,7 @@ import { useNotificationContext } from '@/context/useNotificationContext';
  * @param {Array} props.defaultFields - Default selected fields
  * @param {Function} props.onExport - Custom export handler function
  * @param {number} props.width - Sidebar width in pixels (default: 600)
+ * @param {string} props.itemType - Type of item being exported ('contact', 'user', etc.)
  */
 const ExportSidebar = ({ 
   show, 
@@ -29,7 +30,8 @@ const ExportSidebar = ({
   availableFields = [], // Array of field objects with {key, label}
   defaultFields = [], // Array of default selected field keys
   onExport, // Custom export handler function
-  width = 600 // Dynamic width
+  width = 600, // Dynamic width
+  itemType = 'contact' // Type of item being exported
 }) => {
   const { showSuccess, showError } = useNotificationContext();
   const [selectedFormat, setSelectedFormat] = useState('excel');
@@ -84,9 +86,9 @@ const ExportSidebar = ({
         const filename = `${title.toLowerCase().replace(/\s+/g, '-')}-${timestamp}`;
 
         if (selectedFormat === 'pdf') {
-          result = exportToPDF(data, filename, selectedFields, availableFields);
+          result = exportToPDF(data, filename, selectedFields, availableFields, itemType);
         } else if (selectedFormat === 'excel') {
-          result = exportToExcel(data, filename, selectedFields, availableFields);
+          result = exportToExcel(data, filename, selectedFields, availableFields, itemType);
         }
 
         if (result.success) {
