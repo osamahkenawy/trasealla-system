@@ -110,15 +110,8 @@ export const exportToPDF = (data, filename = 'contacts-export', selectedFields =
   try {
     const doc = new jsPDF('landscape', 'mm', 'a4');
     
-    // Add title
-    doc.setFontSize(20);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Contacts Export', 20, 20);
-    
-    // Add export date
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Export Date: ${new Date().toLocaleDateString()}`, 20, 30);
+    // Set title for use in didDrawPage
+    const title = itemType === 'user' ? 'Users Export' : 'Contacts Export';
     
     // Add company logo (if available)
     const imgWidth = 76.23; 
@@ -218,30 +211,55 @@ export const exportToPDF = (data, filename = 'contacts-export', selectedFields =
       return columnStyles;
     };
     
+    // Start table from top to maximize space
+    const tableStartY = 45;
+    
     // Generate table using autoTable
     doc.autoTable({
-      startY: 40,
+      startY: tableStartY,
       head: [headers],
       body: tableData,
       theme: 'grid',
       styles: {
-        fontSize: 8,
-        cellPadding: 3,
-        overflow: 'linebreak',
-        valign: 'top',
-        halign: 'left'
+        fontSize: 6,
+        cellPadding: 1.5,
+        overflow: 'hidden',
+        valign: 'middle',
+        halign: 'center',
+        lineWidth: 0.3,
+        lineColor: [200, 200, 200],
+        cellWidth: 'wrap'
       },
       headStyles: {
         fillColor: [28, 55, 93], // #1B365D
         textColor: 255,
         fontStyle: 'bold',
-        fontSize: 9,
-        halign: 'center'
+        fontSize: 7,
+        halign: 'center',
+        valign: 'middle',
+        minCellHeight: 6
+      },
+      bodyStyles: {
+        minCellHeight: 5
       },
       margin: { top: 40, right: rightMargin, bottom: 20, left: leftMargin },
       tableWidth: fullTableWidth, // Force full width
-      showHead: 'everyPage',
-      columnStyles: generateColumnStyles(headers.length)
+      showHead: 'firstPage',
+      columnStyles: generateColumnStyles(headers.length),
+      horizontalPageBreak: false,
+      horizontalPageBreakRepeat: 0,
+      didDrawPage: function(data) {
+        // Add header on first page only
+        if (data.pageNumber === 1) {
+          doc.setFontSize(14);
+          doc.setFont('helvetica', 'bold');
+          doc.text(title, leftMargin, 30);
+          
+          doc.setFontSize(9);
+          doc.setFont('helvetica', 'normal');
+          doc.text(`Export Date: ${new Date().toLocaleDateString()}`, leftMargin, 37);
+        }
+      }
     });
     
     // Add footer with page numbers
