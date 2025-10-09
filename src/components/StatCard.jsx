@@ -3,13 +3,17 @@
 import React from 'react';
 import { Card } from 'react-bootstrap';
 import Image from 'next/image';
+import { Icon } from '@iconify/react';
 
 /**
  * Reusable Stat Card Component
  * Matches the Vue.js custom card design
+ * Supports both image URLs and Iconify icons
  */
 const StatCard = ({ 
-  imageUrl, 
+  imageUrl,
+  icon,
+  iconColor,
   title, 
   value, 
   textColor = '#101828',
@@ -45,15 +49,24 @@ const StatCard = ({
           </div>
         </div>
 
-        {/* RIGHT: Image */}
+        {/* RIGHT: Image or Icon */}
         <div className="image-wrapper">
-          <Image 
-            src={imageUrl} 
-            alt="icon" 
-            className="image-icon"
-            width={24}
-            height={24}
-          />
+          {icon ? (
+            <Icon 
+              icon={icon} 
+              width={40} 
+              height={40}
+              style={{ color: iconColor }}
+            />
+          ) : imageUrl ? (
+            <Image 
+              src={imageUrl} 
+              alt="icon" 
+              className="image-icon"
+              width={40}
+              height={40}
+            />
+          ) : null}
         </div>
       </div>
     </Card>

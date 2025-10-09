@@ -38,28 +38,32 @@ const UsersStats = ({ stats, loading }) => {
     {
       title: 'Total Users',
       value: overview.totalUsers || 0,
-      icon: 'users',
+      icon: 'mdi:account-group',
+      iconColor: '#0d6efd',
       color: 'primary',
       trend: registrations.thisWeek || 0
     },
     {
       title: 'Active Users',
       value: overview.activeUsers || 0,
-      icon: 'user-check',
+      icon: 'mdi:account-check',
+      iconColor: '#198754',
       color: 'success',
       trend: overview.activeInLast7Days || 0
     },
     {
       title: 'Customers',
       value: customerCount,
-      icon: 'user-tie',
+      icon: 'mdi:account-tie',
+      iconColor: '#0dcaf0',
       color: 'info',
       trend: 0
     },
     {
       title: 'Admins',
       value: adminCount,
-      icon: 'user-shield',
+      icon: 'mdi:shield-account',
+      iconColor: '#ffc107',
       color: 'warning',
       trend: 0
     }

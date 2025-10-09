@@ -11,6 +11,7 @@ import {
 
 const ContactsFilters = ({ filters, onFilterChange, loading }) => {
   const [users, setUsers] = useState([]);
+  const [searchInput, setSearchInput] = useState(filters.search || '');
 
   // Fetch users for assignment filter
   useEffect(() => {
@@ -33,8 +34,20 @@ const ContactsFilters = ({ filters, onFilterChange, loading }) => {
     onFilterChange({ [key]: value });
   };
 
+  // Handle search submit
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    onFilterChange({ search: searchInput });
+  };
+
+  // Handle search input change
+  const handleSearchInputChange = (value) => {
+    setSearchInput(value);
+  };
+
   // Clear all filters
   const clearFilters = () => {
+    setSearchInput('');
     onFilterChange({
       status: '',
       inquiryType: '',
@@ -55,16 +68,26 @@ const ContactsFilters = ({ filters, onFilterChange, loading }) => {
           <Form.Group>
             <Form.Label>Search</Form.Label>
             <InputGroup>
-              <InputGroup.Text>
-                <i className="bi bi-search"></i>
-              </InputGroup.Text>
               <Form.Control
                 type="text"
                 placeholder="Search contacts..."
-                value={filters.search}
-                onChange={(e) => handleFilterChange('search', e.target.value)}
+                value={searchInput}
+                onChange={(e) => handleSearchInputChange(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    handleSearchSubmit(e);
+                  }
+                }}
                 disabled={loading}
               />
+              <Button 
+                variant="primary" 
+                onClick={handleSearchSubmit}
+                disabled={loading}
+                title="Search"
+              >
+                <i className="bi bi-search"></i>
+              </Button>
             </InputGroup>
           </Form.Group>
         </Col>
@@ -211,7 +234,10 @@ const ContactsFilters = ({ filters, onFilterChange, loading }) => {
                     type="button"
                     className="btn-close btn-close-white ms-1"
                     style={{ fontSize: '0.7em' }}
-                    onClick={() => handleFilterChange('search', '')}
+                    onClick={() => {
+                      setSearchInput('');
+                      handleFilterChange('search', '');
+                    }}
                   ></button>
                 </span>
               )}
