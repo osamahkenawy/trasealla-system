@@ -12,6 +12,27 @@ export const MENU_ITEMS = [{
     variant: 'primary'
   }
 },
+// ====================Flights===============
+{
+  key: 'flights',
+  label: 'Flight Booking',
+  icon: 'solar:airplane-outline',
+  children: [{
+    key: 'flight-search',
+    label: 'Search Flights',
+    url: '/flights/search',
+    parentKey: 'flights'
+  }, {
+    key: 'my-bookings',
+    label: 'My Bookings',
+    url: '/flights/bookings',
+    parentKey: 'flights'
+  }],
+  badge: {
+    text: 'New',
+    variant: 'success'
+  }
+},
 // ====================Authentication===============
 
 {

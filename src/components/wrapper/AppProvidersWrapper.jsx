@@ -8,6 +8,7 @@ const LayoutProvider = dynamic(() => import('@/context/useLayoutContext').then(m
 });
 import { NotificationProvider } from '@/context/useNotificationContext';
 import { AuthProvider } from '@/context/useAuthContext';
+import { FlightProvider } from '@/context/useFlightContext';
 
 const AppProvidersWrapper = ({
   children
@@ -16,8 +17,10 @@ const AppProvidersWrapper = ({
       <AuthProvider>
         <LayoutProvider>
           <NotificationProvider>
-            {children}
-            <ToastContainer theme="colored" />
+            <FlightProvider>
+              {children}
+              <ToastContainer theme="colored" />
+            </FlightProvider>
           </NotificationProvider>
         </LayoutProvider>
       </AuthProvider>
