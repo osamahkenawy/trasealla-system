@@ -139,8 +139,132 @@ const FlightDetailsModal = ({ flight, onClose, onSelect }) => {
     );
   };
 
+  const renderPassengerAmenities = () => {
+    // Try to get amenities from raw Duffel data
+    const rawSegments = flight.raw?.slices?.[0]?.segments || [];
+    
+    if (rawSegments.length === 0) return null;
+
+    return (
+      <div className="mb-4">
+        <h5 className="mb-3">
+          <i className="mdi mdi-seat-passenger me-2"></i>
+          Passenger Amenities & Cabin Details
+        </h5>
+        
+        {rawSegments.map((rawSegment, index) => {
+          const passengerInfo = rawSegment.passengers?.[0]; // First passenger as reference
+          const cabin = passengerInfo?.cabin;
+          const amenities = cabin?.amenities;
+          const baggages = passengerInfo?.baggages || [];
+          
+          return (
+            <div key={index} className="card mb-3">
+              <div className="card-body">
+                <h6 className="mb-3">
+                  <i className="mdi mdi-airplane me-1"></i>
+                  {rawSegment.origin?.iata_code} → {rawSegment.destination?.iata_code}
+                  <span className="badge bg-primary ms-2">{cabin?.marketing_name || 'Economy'}</span>
+                </h6>
+
+                {/* Cabin Amenities */}
+                {amenities && (
+                  <div className="mb-3">
+                    <p className="text-muted small mb-2 fw-semibold">CABIN AMENITIES</p>
+                    <div className="row g-2">
+                      {/* WiFi */}
+                      {amenities.wifi && (
+                        <div className="col-md-4">
+                          <div className="d-flex align-items-center">
+                            <i className={`mdi mdi-wifi ${amenities.wifi.available ? 'text-success' : 'text-danger'} me-2`}></i>
+                            <div>
+                              <small className="d-block">WiFi</small>
+                              <small className="text-muted">
+                                {amenities.wifi.available 
+                                  ? (amenities.wifi.cost === 'free' ? 'Free' : 'Paid') 
+                                  : 'Not available'}
+                              </small>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Power */}
+                      {amenities.power && (
+                        <div className="col-md-4">
+                          <div className="d-flex align-items-center">
+                            <i className={`mdi mdi-power-plug ${amenities.power.available ? 'text-success' : 'text-danger'} me-2`}></i>
+                            <div>
+                              <small className="d-block">Power</small>
+                              <small className="text-muted">
+                                {amenities.power.available ? 'Available' : 'Not available'}
+                              </small>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Seat Details */}
+                      {amenities.seat && (
+                        <div className="col-md-4">
+                          <div className="d-flex align-items-center">
+                            <i className="mdi mdi-seat-passenger text-primary me-2"></i>
+                            <div>
+                              <small className="d-block">Seat Pitch</small>
+                              <small className="text-muted">
+                                {amenities.seat.pitch ? `${amenities.seat.pitch}"` : 'Standard'}
+                              </small>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Baggage Allowance */}
+                {baggages.length > 0 && (
+                  <div className="mt-3">
+                    <p className="text-muted small mb-2 fw-semibold">BAGGAGE ALLOWANCE</p>
+                    <div className="d-flex gap-3 flex-wrap">
+                      {baggages.map((bag, bagIndex) => (
+                        <div key={bagIndex} className="d-flex align-items-center">
+                          <i className={`mdi ${bag.type === 'checked' ? 'mdi-bag-suitcase' : 'mdi-bag-carry-on'} text-success me-2`}></i>
+                          <div>
+                            <small className="d-block fw-semibold">
+                              {bag.quantity} {bag.type === 'checked' ? 'Checked' : 'Carry-on'}
+                            </small>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Fare Basis Code */}
+                {passengerInfo?.fare_basis_code && (
+                  <div className="mt-3">
+                    <small className="text-muted">
+                      <i className="mdi mdi-ticket-outline me-1"></i>
+                      Fare Basis: {passengerInfo.fare_basis_code}
+                    </small>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   const renderBaggageInfo = () => {
     const baggageInfo = flight.travelerPricings?.[0]?.fareDetailsBySegment || [];
+    
+    // Skip if we're showing Duffel format details above
+    if (flight.raw?.slices?.[0]?.segments?.[0]?.passengers) {
+      return null;
+    }
     
     return (
       <div className="mb-4">
@@ -321,7 +445,10 @@ const FlightDetailsModal = ({ flight, onClose, onSelect }) => {
         {/* Return Flight */}
         {flight.itineraries?.[1] && renderItinerary(flight.itineraries[1], 'Return Flight')}
 
-        {/* Baggage Information */}
+        {/* Passenger Amenities & Cabin Details (Duffel format) */}
+        {renderPassengerAmenities()}
+
+        {/* Baggage Information (Amadeus format fallback) */}
         {renderBaggageInfo()}
 
         {/* Fare Breakdown */}

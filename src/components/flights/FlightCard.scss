@@ -1,0 +1,201 @@
+// Flight Card Styles - Matching exact design with divider
+.flight-card {
+  transition: all 0.3s ease;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    transform: translateY(-1px);
+  }
+  
+  .card-body {
+    padding: 1.25rem !important;
+  }
+  
+  // Flight details section (left side)
+  .flight-details-section {
+    padding-right: 1rem;
+  }
+  
+  // Price actions section (right side)
+  .price-actions-section {
+    padding-left: 1rem;
+  }
+  
+  // Vertical divider
+  .flight-divider {
+    @media (max-width: 991px) {
+      display: none;
+    }
+  }
+  
+  .airline-logo-container {
+    transition: all 0.2s ease;
+    
+    &:hover {
+      transform: scale(1.02);
+    }
+    
+    img {
+      display: block;
+    }
+  }
+  
+  .price-section {
+    h2 {
+      color: #0091ea;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+  }
+  
+  .btn-select {
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0, 145, 234, 0.25);
+    
+    &:hover {
+      transform: scale(1.03);
+      box-shadow: 0 4px 12px rgba(0, 145, 234, 0.35);
+      background-color: #007ac1 !important;
+    }
+    
+    &:active {
+      transform: scale(0.98);
+    }
+  }
+  
+  // Link buttons styling
+  .btn-link {
+    transition: all 0.2s ease;
+    font-size: 0.85rem;
+    
+    &:hover {
+      opacity: 0.8;
+      text-decoration: underline !important;
+    }
+    
+    i {
+      vertical-align: middle;
+    }
+  }
+  
+  // Time display
+  h3 {
+    font-weight: 700;
+    color: #1a1a1a;
+    letter-spacing: -0.3px;
+  }
+  
+  // Route info
+  h5 {
+    color: #424242;
+    font-weight: 400;
+  }
+  
+  // Flight type (Direct, etc)
+  p {
+    color: #666666;
+  }
+}
+
+// Flight Details Modal Enhancements
+.passenger-amenities-card {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  
+  .amenity-icon {
+    font-size: 1.25rem;
+    
+    &.available {
+      color: #28a745;
+    }
+    
+    &.unavailable {
+      color: #dc3545;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 991px) {
+  .flight-card {
+    .card-body {
+      padding: 1rem !important;
+      
+      > .d-flex {
+        flex-direction: column;
+      }
+    }
+    
+    .flight-details-section {
+      padding-right: 0;
+      margin-bottom: 1rem;
+      text-align: center;
+      
+      .d-flex {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .airline-logo-container {
+        margin-left: 0 !important;
+        margin-top: 1rem;
+      }
+    }
+    
+    .price-actions-section {
+      padding-left: 0;
+      min-width: 100% !important;
+      
+      .text-end {
+        text-align: center !important;
+      }
+      
+      .btn-select {
+        width: 100%;
+        max-width: 200px;
+        margin: 0 auto;
+        display: block;
+      }
+    }
+    
+    // Hide divider on mobile
+    .flight-divider {
+      display: none !important;
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .flight-card {
+    .card-body {
+      padding: 0.75rem !important;
+    }
+    
+    h3 {
+      font-size: 1.25rem !important;
+    }
+    
+    h5 {
+      font-size: 0.9rem !important;
+    }
+    
+    .price-section h2 {
+      font-size: 1.8rem !important;
+    }
+  }
+}
+
+// Print styles
+@media print {
+  .flight-card {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
+}
+
