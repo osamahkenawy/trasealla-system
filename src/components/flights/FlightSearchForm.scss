@@ -1,0 +1,525 @@
+.flight-search-form-compact {
+  padding: 0;
+  
+  form {
+    width: 100%;
+  }
+
+  .search-container {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  // Trip Type Selector
+  .trip-type-selector {
+    margin-bottom: 20px;
+    
+    .form-select {
+      max-width: 180px;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+      background-color: #fff;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &:hover {
+        border-color: #3b7ddd;
+      }
+
+      &:focus {
+        border-color: #3b7ddd;
+        box-shadow: 0 0 0 3px rgba(59, 125, 221, 0.1);
+        outline: none;
+      }
+    }
+  }
+
+  // Main Search Fields Row
+  .search-fields-row {
+    display: flex;
+    gap: 12px;
+    align-items: stretch;
+    flex-wrap: wrap;
+
+    @media (max-width: 1200px) {
+      flex-direction: column;
+    }
+  }
+
+  // Individual Search Field
+  .search-field {
+    flex: 1;
+    min-width: 180px;
+    background: #f5f5f5;
+    border-radius: 6px;
+    padding: 12px 16px;
+    position: relative;
+    transition: all 0.2s;
+
+    &:hover {
+      background: #ebebeb;
+    }
+
+    .field-label {
+      display: block;
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+
+    .field-value {
+      font-size: 15px;
+      font-weight: 600;
+      color: #222;
+      position: relative;
+    }
+
+    .field-error {
+      position: absolute;
+      bottom: -20px;
+      left: 0;
+      font-size: 11px;
+      color: #dc3545;
+      white-space: nowrap;
+    }
+  }
+
+  // Date Fields Special Styling
+  .depart-date,
+  .return-date {
+    .field-value {
+      position: relative;
+
+      .form-control-compact {
+        position: absolute;
+        opacity: 0;
+        pointer-events: all;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: 2;
+        cursor: pointer;
+      }
+
+      .date-display {
+        position: relative;
+        z-index: 1;
+        pointer-events: none;
+        font-size: 15px;
+        font-weight: 600;
+        color: #222;
+        cursor: pointer;
+      }
+    }
+  }
+
+  // Passengers & Class Field
+  .passengers-class {
+    min-width: 220px;
+    cursor: pointer;
+
+    .field-value {
+      .dropdown {
+        position: relative;
+      }
+
+      .btn-compact {
+        width: 100%;
+        background: transparent;
+        border: none;
+        padding: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        text-align: left;
+
+        .passenger-summary {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+          flex: 1;
+
+          .passenger-count {
+            font-size: 15px;
+            font-weight: 600;
+            color: #222;
+          }
+
+          .travel-class-badge {
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+          }
+        }
+
+        .mdi-chevron-down {
+          font-size: 20px;
+          color: #666;
+        }
+
+        &:hover {
+          .passenger-summary {
+            .passenger-count {
+              color: #3b7ddd;
+            }
+          }
+        }
+      }
+
+      // Dropdown Backdrop
+      .dropdown-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1040;
+        background: transparent;
+      }
+
+      // Dropdown Menu
+      .dropdown-menu-compact {
+        position: absolute;
+        top: calc(100% + 8px);
+        right: 0;
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        padding: 20px;
+        min-width: 360px;
+        z-index: 1050;
+        animation: slideDown 0.2s ease;
+
+        @keyframes slideDown {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .passenger-section {
+          margin-bottom: 16px;
+
+          &:last-child {
+            margin-bottom: 0;
+          }
+
+          .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+          }
+
+          // Class Options
+          .class-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+
+            .class-option {
+              background: #f5f5f5;
+              border: 2px solid transparent;
+              border-radius: 6px;
+              padding: 10px;
+              font-size: 13px;
+              font-weight: 500;
+              color: #666;
+              cursor: pointer;
+              transition: all 0.2s;
+              text-align: center;
+
+              &:hover {
+                background: #e8e8e8;
+              }
+
+              &.active {
+                background: #e3f2fd;
+                border-color: #3b7ddd;
+                color: #3b7ddd;
+                font-weight: 600;
+              }
+            }
+          }
+
+          // Passenger Rows
+          .passenger-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+
+            &:last-child {
+              border-bottom: none;
+            }
+
+            .passenger-info {
+              .passenger-type {
+                font-size: 14px;
+                font-weight: 600;
+                color: #333;
+                margin-bottom: 2px;
+              }
+
+              .passenger-desc {
+                font-size: 12px;
+                color: #999;
+              }
+            }
+
+            .passenger-counter {
+              display: flex;
+              align-items: center;
+              gap: 12px;
+
+              .btn-counter {
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                border: 1px solid #e0e0e0;
+                background: #fff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: all 0.2s;
+                font-size: 16px;
+                color: #666;
+
+                &:hover:not(:disabled) {
+                  background: #3b7ddd;
+                  border-color: #3b7ddd;
+                  color: #fff;
+                }
+
+                &:disabled {
+                  opacity: 0.3;
+                  cursor: not-allowed;
+                }
+              }
+
+              .counter-value {
+                font-size: 16px;
+                font-weight: 600;
+                color: #333;
+                min-width: 20px;
+                text-align: center;
+              }
+            }
+          }
+
+          .passenger-note {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 12px;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 4px;
+
+            i {
+              font-size: 16px;
+              color: #3b7ddd;
+            }
+
+            small {
+              font-size: 12px;
+              color: #666;
+            }
+          }
+        }
+
+        .dropdown-divider {
+          height: 1px;
+          background: #e0e0e0;
+          margin: 16px 0;
+        }
+
+        .dropdown-actions {
+          margin-top: 16px;
+
+          .btn-primary {
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 6px;
+          }
+        }
+
+        .form-check {
+          padding-left: 1.5rem;
+
+          .form-check-input {
+            margin-top: 0.15rem;
+          }
+
+          .form-check-label {
+            font-size: 14px;
+            color: #333;
+            cursor: pointer;
+          }
+        }
+      }
+    }
+  }
+
+  // Search Button
+  .search-button-container {
+    display: flex;
+    align-items: stretch;
+
+    .btn-search {
+      background: #3b7ddd;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 12px 32px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+      white-space: nowrap;
+      min-width: 120px;
+
+      &:hover:not(:disabled) {
+        background: #2e66b8;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(59, 125, 221, 0.3);
+      }
+
+      &:active:not(:disabled) {
+        transform: translateY(0);
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .mdi-magnify {
+        font-size: 20px;
+      }
+
+      .spinner-border-sm {
+        width: 18px;
+        height: 18px;
+      }
+
+      @media (max-width: 768px) {
+        .search-text {
+          display: none;
+        }
+      }
+    }
+  }
+
+  // Airport Autocomplete Integration
+  .search-field {
+    :global {
+      .airport-autocomplete {
+        .form-control {
+          background: transparent;
+          border: none;
+          padding: 0;
+          font-size: 15px;
+          font-weight: 600;
+          color: #222;
+          box-shadow: none;
+
+          &:focus {
+            outline: none;
+            box-shadow: none;
+          }
+
+          &::placeholder {
+            color: #999;
+            font-weight: 500;
+          }
+        }
+
+        .autocomplete-dropdown {
+          top: calc(100% + 12px);
+          left: -16px;
+          right: -16px;
+          width: auto;
+        }
+      }
+    }
+  }
+
+  // Responsive Design
+  @media (max-width: 1400px) {
+    .search-fields-row {
+      .search-field {
+        min-width: 160px;
+      }
+
+      .passengers-class {
+        min-width: 200px;
+      }
+    }
+  }
+
+  @media (max-width: 1200px) {
+    .search-fields-row {
+      .search-field {
+        flex: 1 1 100%;
+        max-width: 100%;
+      }
+
+      .search-button-container {
+        flex: 1 1 100%;
+
+        .btn-search {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .search-container {
+      padding: 16px;
+    }
+
+    .trip-type-selector {
+      .form-select {
+        max-width: 100%;
+        width: 100%;
+      }
+    }
+
+    .passengers-class {
+      .field-value {
+        .dropdown-menu-compact {
+          left: 0;
+          right: 0;
+          min-width: auto;
+          width: calc(100vw - 64px);
+          max-width: 400px;
+        }
+      }
+    }
+  }
+}
+

@@ -15,7 +15,8 @@ const AirportAutocomplete = ({
   error,
   required = false,
   disabled = false,
-  icon = '✈️'
+  icon = '✈️',
+  compact = false
 }) => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
@@ -168,22 +169,24 @@ const AirportAutocomplete = ({
   }, {});
 
   return (
-    <div className="position-relative">
-      {label && (
+    <div className={`position-relative ${compact ? 'airport-autocomplete' : ''}`}>
+      {!compact && label && (
         <label className="form-label">
           {label} {required && <span className="text-danger">*</span>}
         </label>
       )}
 
       <div className="position-relative">
-        <span className="position-absolute top-50 start-0 translate-middle-y ms-3" style={{ fontSize: '1.2rem' }}>
-          {icon}
-        </span>
+        {!compact && (
+          <span className="position-absolute top-50 start-0 translate-middle-y ms-3" style={{ fontSize: '1.2rem' }}>
+            {icon}
+          </span>
+        )}
         
         <input
           ref={inputRef}
           type="text"
-          className={`form-control ps-5 ${error ? 'is-invalid' : ''}`}
+          className={`form-control ${compact ? '' : 'ps-5'} ${error ? 'is-invalid' : ''}`}
           value={query}
           onChange={handleInputChange}
           onFocus={handleFocus}
@@ -202,7 +205,7 @@ const AirportAutocomplete = ({
         )}
       </div>
 
-      {error && (
+      {!compact && error && (
         <div className="invalid-feedback d-block">{error}</div>
       )}
 
@@ -210,7 +213,7 @@ const AirportAutocomplete = ({
       {isOpen && results.length > 0 && (
         <div
           ref={dropdownRef}
-          className="dropdown-menu show w-100 shadow-lg"
+          className={`dropdown-menu show w-100 shadow-lg ${compact ? 'autocomplete-dropdown' : ''}`}
           style={{
             maxHeight: '400px',
             overflowY: 'auto',

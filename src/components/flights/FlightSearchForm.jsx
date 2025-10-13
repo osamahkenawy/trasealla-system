@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import AirportAutocomplete from './AirportAutocomplete';
 import { TRAVEL_CLASSES, TRAVEL_CLASS_LABELS } from '@/services/flightsService';
 import CustomFlatpickr from '@/components/CustomFlatpickr';
+import './FlightSearchForm.scss';
 
 /**
  * Flight Search Form Component
@@ -13,19 +14,18 @@ const FlightSearchForm = ({
   isSearching = false,
   initialValues = null
 }) => {
-  const [tripType, setTripType] = useState('roundtrip'); // oneway, roundtrip, multicity
+  const [tripType, setTripType] = useState('roundtrip'); // oneway, roundtrip
   const [origin, setOrigin] = useState(null);
   const [destination, setDestination] = useState(null);
   const [departureDate, setDepartureDate] = useState(null);
   const [returnDate, setReturnDate] = useState(null);
   const [passengers, setPassengers] = useState({
-    adults: 1,
+    adults: 2,
     children: 0,
     infants: 0
   });
   const [travelClass, setTravelClass] = useState('ECONOMY');
   const [nonStop, setNonStop] = useState(false);
-  const [flexibleDates, setFlexibleDates] = useState(false);
   
   const [errors, setErrors] = useState({});
   const [showPassengerDropdown, setShowPassengerDropdown] = useState(false);
@@ -48,9 +48,6 @@ const FlightSearchForm = ({
 
   // Update trip type when return date is cleared
   useEffect(() => {
-    if (tripType === 'roundtrip' && !returnDate) {
-      // User cleared return date, but don't auto-switch
-    }
     if (tripType === 'oneway' && returnDate) {
       setReturnDate(null);
     }
@@ -77,13 +74,6 @@ const FlightSearchForm = ({
     }
   }, [returnDate]);
 
-  // Swap origin and destination
-  const handleSwapAirports = () => {
-    const temp = origin;
-    setOrigin(destination);
-    setDestination(temp);
-  };
-
   // Update passenger count
   const updatePassengerCount = (type, value) => {
     const newValue = Math.max(0, Math.min(9, value));
@@ -108,6 +98,22 @@ const FlightSearchForm = ({
     return passengers.adults + passengers.children + passengers.infants;
   };
 
+  // Get passenger summary text
+  const getPassengerSummary = () => {
+    const parts = [];
+    if (passengers.adults > 0) parts.push(`${passengers.adults} Adult${passengers.adults > 1 ? 's' : ''}`);
+    if (passengers.children > 0) parts.push(`${passengers.children} Child${passengers.children > 1 ? 'ren' : ''}`);
+    if (passengers.infants > 0) parts.push(`${passengers.infants} Infant${passengers.infants > 1 ? 's' : ''}`);
+    return parts.join(', ');
+  };
+
+  // Format date for display
+  const formatDateDisplay = (dateStr) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+
   // Validate form
   const validateForm = () => {
     const newErrors = {};
@@ -124,19 +130,16 @@ const FlightSearchForm = ({
       newErrors.destination = 'Destination must be different from origin';
     }
 
-    // Check if departureDate is a valid string with length > 0
     if (!departureDate || departureDate.trim() === '') {
       newErrors.departureDate = 'Please select departure date';
     }
 
-    // For round trip, validate return date
     if (tripType === 'roundtrip') {
       if (!returnDate || returnDate.trim() === '') {
         newErrors.returnDate = 'Please select return date for round trip';
       }
     }
 
-    // Only validate date comparison if both dates are provided
     if (departureDate && returnDate && departureDate.trim() !== '' && returnDate.trim() !== '') {
       const depDate = new Date(departureDate);
       const retDate = new Date(returnDate);
@@ -183,321 +186,294 @@ const FlightSearchForm = ({
   };
 
   return (
-    <div className="card shadow-sm">
-      <div className="card-body">
-        <form onSubmit={handleSubmit}>
-          {/* Trip Type Selector */}
-          <div className="mb-4">
-            <div className="btn-group" role="group">
-              <input
-                type="radio"
-                className="btn-check"
-                name="tripType"
-                id="roundtrip"
-                checked={tripType === 'roundtrip'}
-                onChange={() => setTripType('roundtrip')}
-              />
-              <label className="btn btn-outline-primary" htmlFor="roundtrip">
-                <i className="mdi mdi-airplane-takeoff me-1"></i>
-                Round Trip
-              </label>
-
-              <input
-                type="radio"
-                className="btn-check"
-                name="tripType"
-                id="oneway"
-                checked={tripType === 'oneway'}
-                onChange={() => setTripType('oneway')}
-              />
-              <label className="btn btn-outline-primary" htmlFor="oneway">
-                <i className="mdi mdi-airplane me-1"></i>
-                One Way
-              </label>
-            </div>
+    <div className="flight-search-form-compact">
+      <form onSubmit={handleSubmit}>
+        <div className="search-container">
+          {/* Trip Type Dropdown */}
+          <div className="trip-type-selector">
+            <select
+              className="form-select"
+              value={tripType}
+              onChange={(e) => setTripType(e.target.value)}
+            >
+              <option value="oneway">→ One-way</option>
+              <option value="roundtrip">⇄ Round-trip</option>
+            </select>
           </div>
 
-          <div className="row g-3">
-            {/* Origin Airport */}
-            <div className="col-md-6 col-lg-3">
-              <AirportAutocomplete
-                label="From"
-                placeholder="Origin airport"
-                value={origin}
-                onChange={setOrigin}
-                error={errors.origin}
-                required
-                icon="🛫"
-              />
+          {/* Main Search Row */}
+          <div className="search-fields-row">
+            {/* Flying From */}
+            <div className="search-field flying-from">
+              <label className="field-label">Flying from</label>
+              <div className="field-value">
+                <AirportAutocomplete
+                  placeholder="Select airport"
+                  value={origin}
+                  onChange={setOrigin}
+                  error={errors.origin}
+                  compact={true}
+                />
+              </div>
             </div>
 
-            {/* Swap Button */}
-            <div className="col-auto d-none d-lg-flex align-items-end pb-2">
-              <button
-                type="button"
-                className="btn btn-light btn-icon"
-                onClick={handleSwapAirports}
-                title="Swap airports"
-              >
-                <i className="mdi mdi-swap-horizontal"></i>
-              </button>
+            {/* Flying To */}
+            <div className="search-field flying-to">
+              <label className="field-label">Flying to</label>
+              <div className="field-value">
+                <AirportAutocomplete
+                  placeholder="Select airport"
+                  value={destination}
+                  onChange={setDestination}
+                  error={errors.destination}
+                  compact={true}
+                />
+              </div>
             </div>
 
-            {/* Destination Airport */}
-            <div className="col-md-6 col-lg-3">
-              <AirportAutocomplete
-                label="To"
-                placeholder="Destination airport"
-                value={destination}
-                onChange={setDestination}
-                error={errors.destination}
-                required
-                icon="🛬"
-              />
-            </div>
-
-            {/* Departure Date */}
-            <div className="col-md-6 col-lg-2">
-              <label className="form-label">
-                Departure <span className="text-danger">*</span>
-              </label>
-              <CustomFlatpickr
-                value={departureDate}
-                onChange={(date) => setDepartureDate(date)}
-                options={{
-                  minDate: 'today',
-                  dateFormat: 'Y-m-d'
-                }}
-                placeholder="Select date"
-                className={errors.departureDate ? 'is-invalid' : ''}
-              />
+            {/* Depart Date */}
+            <div className="search-field depart-date">
+              <label className="field-label">Depart</label>
+              <div className="field-value">
+                <CustomFlatpickr
+                  value={departureDate}
+                  onChange={(date) => setDepartureDate(date)}
+                  options={{
+                    minDate: 'today',
+                    dateFormat: 'Y-m-d'
+                  }}
+                  placeholder="Select date"
+                  className={`form-control-compact ${errors.departureDate ? 'is-invalid' : ''}`}
+                />
+                <div className="date-display">
+                  {departureDate ? formatDateDisplay(departureDate) : 'Select date'}
+                </div>
+              </div>
               {errors.departureDate && (
-                <div className="invalid-feedback d-block">{errors.departureDate}</div>
+                <div className="field-error">{errors.departureDate}</div>
               )}
             </div>
 
-            {/* Return Date */}
-            <div className="col-md-6 col-lg-2">
-              <label className="form-label">
-                Return {tripType === 'roundtrip' && <span className="text-danger">*</span>}
-              </label>
-              <CustomFlatpickr
-                value={returnDate}
-                onChange={(date) => setReturnDate(date)}
-                options={{
-                  minDate: departureDate || 'today',
-                  dateFormat: 'Y-m-d'
-                }}
-                placeholder={tripType === 'oneway' ? 'One way' : 'Select date'}
-                className={errors.returnDate ? 'is-invalid' : ''}
-                disabled={tripType === 'oneway'}
-              />
-              {errors.returnDate && (
-                <div className="invalid-feedback d-block">{errors.returnDate}</div>
-              )}
-            </div>
-
-            {/* Passengers Dropdown */}
-            <div className="col-md-6 col-lg-2">
-              <label className="form-label">
-                Passengers <span className="text-danger">*</span>
-              </label>
-              <div className="dropdown">
-                <button
-                  type="button"
-                  className={`btn btn-light dropdown-toggle w-100 text-start ${
-                    errors.passengers ? 'is-invalid' : ''
-                  }`}
-                  onClick={() => setShowPassengerDropdown(!showPassengerDropdown)}
-                >
-                  <i className="mdi mdi-account-multiple me-1"></i>
-                  {getTotalPassengers()} {getTotalPassengers() === 1 ? 'Passenger' : 'Passengers'}
-                </button>
-                
-                {showPassengerDropdown && (
-                  <div className="dropdown-menu show w-100 p-3 shadow-lg" style={{ minWidth: '280px' }}>
-                    {/* Adults */}
-                    <div className="d-flex justify-content-between align-items-center mb-3">
-                      <div>
-                        <div className="fw-semibold">Adults</div>
-                        <small className="text-muted">12+ years</small>
-                      </div>
-                      <div className="btn-group" role="group">
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-outline-secondary"
-                          onClick={() => updatePassengerCount('adults', passengers.adults - 1)}
-                          disabled={passengers.adults <= 1}
-                        >
-                          <i className="mdi mdi-minus"></i>
-                        </button>
-                        <button type="button" className="btn btn-sm btn-outline-secondary" disabled>
-                          {passengers.adults}
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-outline-secondary"
-                          onClick={() => updatePassengerCount('adults', passengers.adults + 1)}
-                          disabled={getTotalPassengers() >= 9}
-                        >
-                          <i className="mdi mdi-plus"></i>
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Children */}
-                    <div className="d-flex justify-content-between align-items-center mb-3">
-                      <div>
-                        <div className="fw-semibold">Children</div>
-                        <small className="text-muted">2-11 years</small>
-                      </div>
-                      <div className="btn-group" role="group">
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-outline-secondary"
-                          onClick={() => updatePassengerCount('children', passengers.children - 1)}
-                          disabled={passengers.children <= 0}
-                        >
-                          <i className="mdi mdi-minus"></i>
-                        </button>
-                        <button type="button" className="btn btn-sm btn-outline-secondary" disabled>
-                          {passengers.children}
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-outline-secondary"
-                          onClick={() => updatePassengerCount('children', passengers.children + 1)}
-                          disabled={getTotalPassengers() >= 9}
-                        >
-                          <i className="mdi mdi-plus"></i>
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Infants */}
-                    <div className="d-flex justify-content-between align-items-center mb-3">
-                      <div>
-                        <div className="fw-semibold">Infants</div>
-                        <small className="text-muted">Under 2 years</small>
-                      </div>
-                      <div className="btn-group" role="group">
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-outline-secondary"
-                          onClick={() => updatePassengerCount('infants', passengers.infants - 1)}
-                          disabled={passengers.infants <= 0}
-                        >
-                          <i className="mdi mdi-minus"></i>
-                        </button>
-                        <button type="button" className="btn btn-sm btn-outline-secondary" disabled>
-                          {passengers.infants}
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-outline-secondary"
-                          onClick={() => updatePassengerCount('infants', passengers.infants + 1)}
-                          disabled={passengers.infants >= passengers.adults || getTotalPassengers() >= 9}
-                        >
-                          <i className="mdi mdi-plus"></i>
-                        </button>
-                      </div>
-                    </div>
-
-                    <small className="text-muted">
-                      <i className="mdi mdi-information me-1"></i>
-                      Infants must be accompanied by adults
-                    </small>
-
-                    <div className="mt-3">
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-primary w-100"
-                        onClick={() => setShowPassengerDropdown(false)}
-                      >
-                        Done
-                      </button>
-                    </div>
+            {/* Return Date (if round trip) */}
+            {tripType === 'roundtrip' && (
+              <div className="search-field return-date">
+                <label className="field-label">Return</label>
+                <div className="field-value">
+                  <CustomFlatpickr
+                    value={returnDate}
+                    onChange={(date) => setReturnDate(date)}
+                    options={{
+                      minDate: departureDate || 'today',
+                      dateFormat: 'Y-m-d'
+                    }}
+                    placeholder="Select date"
+                    className={`form-control-compact ${errors.returnDate ? 'is-invalid' : ''}`}
+                  />
+                  <div className="date-display">
+                    {returnDate ? formatDateDisplay(returnDate) : 'Select date'}
                   </div>
+                </div>
+                {errors.returnDate && (
+                  <div className="field-error">{errors.returnDate}</div>
                 )}
               </div>
-              {errors.passengers && (
-                <div className="invalid-feedback d-block">{errors.passengers}</div>
-              )}
-            </div>
+            )}
 
-            {/* Travel Class */}
-            <div className="col-md-6 col-lg-2">
-              <label className="form-label">Travel Class</label>
-              <select
-                className="form-select"
-                value={travelClass}
-                onChange={(e) => setTravelClass(e.target.value)}
-              >
-                {Object.keys(TRAVEL_CLASSES).map((key) => (
-                  <option key={key} value={TRAVEL_CLASSES[key]}>
-                    {TRAVEL_CLASS_LABELS[TRAVEL_CLASSES[key]]}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {/* Passengers & Class */}
+            <div className="search-field passengers-class">
+              <label className="field-label">Passengers</label>
+              <div className="field-value">
+                <div className="dropdown">
+                  <button
+                    type="button"
+                    className={`btn-compact ${errors.passengers ? 'is-invalid' : ''}`}
+                    onClick={() => setShowPassengerDropdown(!showPassengerDropdown)}
+                  >
+                    <div className="passenger-summary">
+                      <div className="passenger-count">{getPassengerSummary()}</div>
+                      <div className="travel-class-badge">{TRAVEL_CLASS_LABELS[travelClass]}</div>
+                    </div>
+                    <i className="mdi mdi-chevron-down"></i>
+                  </button>
+                  
+                  {showPassengerDropdown && (
+                    <>
+                      <div 
+                        className="dropdown-backdrop" 
+                        onClick={() => setShowPassengerDropdown(false)}
+                      ></div>
+                      <div className="dropdown-menu-compact show">
+                        {/* Travel Class Selection */}
+                        <div className="passenger-section">
+                          <h6 className="section-title">Travel Class</h6>
+                          <div className="class-options">
+                            {Object.keys(TRAVEL_CLASSES).map((key) => (
+                              <button
+                                key={key}
+                                type="button"
+                                className={`class-option ${travelClass === TRAVEL_CLASSES[key] ? 'active' : ''}`}
+                                onClick={() => setTravelClass(TRAVEL_CLASSES[key])}
+                              >
+                                {TRAVEL_CLASS_LABELS[TRAVEL_CLASSES[key]]}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
 
-            {/* Additional Options */}
-            <div className="col-12">
-              <div className="d-flex gap-3 flex-wrap">
-                <div className="form-check">
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    id="nonStop"
-                    checked={nonStop}
-                    onChange={(e) => setNonStop(e.target.checked)}
-                  />
-                  <label className="form-check-label" htmlFor="nonStop">
-                    Non-stop flights only
-                  </label>
-                </div>
+                        <div className="dropdown-divider"></div>
 
-                <div className="form-check">
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    id="flexibleDates"
-                    checked={flexibleDates}
-                    onChange={(e) => setFlexibleDates(e.target.checked)}
-                  />
-                  <label className="form-check-label" htmlFor="flexibleDates">
-                    Flexible dates (±3 days)
-                  </label>
+                        {/* Passenger Counts */}
+                        <div className="passenger-section">
+                          <h6 className="section-title">Passengers</h6>
+                          
+                          {/* Adults */}
+                          <div className="passenger-row">
+                            <div className="passenger-info">
+                              <div className="passenger-type">Adults</div>
+                              <small className="passenger-desc">12+ years</small>
+                            </div>
+                            <div className="passenger-counter">
+                              <button
+                                type="button"
+                                className="btn-counter"
+                                onClick={() => updatePassengerCount('adults', passengers.adults - 1)}
+                                disabled={passengers.adults <= 1}
+                              >
+                                <i className="mdi mdi-minus"></i>
+                              </button>
+                              <span className="counter-value">{passengers.adults}</span>
+                              <button
+                                type="button"
+                                className="btn-counter"
+                                onClick={() => updatePassengerCount('adults', passengers.adults + 1)}
+                                disabled={getTotalPassengers() >= 9}
+                              >
+                                <i className="mdi mdi-plus"></i>
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Children */}
+                          <div className="passenger-row">
+                            <div className="passenger-info">
+                              <div className="passenger-type">Children</div>
+                              <small className="passenger-desc">2-11 years</small>
+                            </div>
+                            <div className="passenger-counter">
+                              <button
+                                type="button"
+                                className="btn-counter"
+                                onClick={() => updatePassengerCount('children', passengers.children - 1)}
+                                disabled={passengers.children <= 0}
+                              >
+                                <i className="mdi mdi-minus"></i>
+                              </button>
+                              <span className="counter-value">{passengers.children}</span>
+                              <button
+                                type="button"
+                                className="btn-counter"
+                                onClick={() => updatePassengerCount('children', passengers.children + 1)}
+                                disabled={getTotalPassengers() >= 9}
+                              >
+                                <i className="mdi mdi-plus"></i>
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Infants */}
+                          <div className="passenger-row">
+                            <div className="passenger-info">
+                              <div className="passenger-type">Infants</div>
+                              <small className="passenger-desc">Under 2 years</small>
+                            </div>
+                            <div className="passenger-counter">
+                              <button
+                                type="button"
+                                className="btn-counter"
+                                onClick={() => updatePassengerCount('infants', passengers.infants - 1)}
+                                disabled={passengers.infants <= 0}
+                              >
+                                <i className="mdi mdi-minus"></i>
+                              </button>
+                              <span className="counter-value">{passengers.infants}</span>
+                              <button
+                                type="button"
+                                className="btn-counter"
+                                onClick={() => updatePassengerCount('infants', passengers.infants + 1)}
+                                disabled={passengers.infants >= passengers.adults || getTotalPassengers() >= 9}
+                              >
+                                <i className="mdi mdi-plus"></i>
+                              </button>
+                            </div>
+                          </div>
+
+                          <div className="passenger-note">
+                            <i className="mdi mdi-information"></i>
+                            <small>Infants must be accompanied by adults</small>
+                          </div>
+                        </div>
+
+                        <div className="dropdown-divider"></div>
+
+                        {/* Direct Flights Option */}
+                        <div className="passenger-section">
+                          <div className="form-check">
+                            <input
+                              className="form-check-input"
+                              type="checkbox"
+                              id="nonStop"
+                              checked={nonStop}
+                              onChange={(e) => setNonStop(e.target.checked)}
+                            />
+                            <label className="form-check-label" htmlFor="nonStop">
+                              Direct flights only
+                            </label>
+                          </div>
+                        </div>
+
+                        <div className="dropdown-actions">
+                          <button
+                            type="button"
+                            className="btn btn-primary w-100"
+                            onClick={() => setShowPassengerDropdown(false)}
+                          >
+                            Done
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
+              {errors.passengers && (
+                <div className="field-error">{errors.passengers}</div>
+              )}
             </div>
 
             {/* Search Button */}
-            <div className="col-12">
+            <div className="search-button-container">
               <button
                 type="submit"
-                className="btn btn-primary btn-lg w-100"
+                className="btn-search"
                 disabled={isSearching}
               >
                 {isSearching ? (
                   <>
-                    <span className="spinner-border spinner-border-sm me-2" role="status"></span>
-                    Searching Flights...
+                    <span className="spinner-border spinner-border-sm" role="status"></span>
                   </>
                 ) : (
                   <>
-                    <i className="mdi mdi-magnify me-2"></i>
-                    Search Flights
+                    <i className="mdi mdi-magnify"></i>
+                    <span className="search-text">Search</span>
                   </>
                 )}
               </button>
             </div>
           </div>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
   );
 };
 
 export default FlightSearchForm;
-
