@@ -208,11 +208,12 @@ const FlightSearchForm = ({
               <label className="field-label">Flying from</label>
               <div className="field-value">
                 <AirportAutocomplete
-                  placeholder="Select airport"
+                  placeholder="Select airport or city"
                   value={origin}
                   onChange={setOrigin}
                   error={errors.origin}
                   compact={true}
+                  searchMode="duffel-locations"
                 />
               </div>
             </div>
@@ -222,11 +223,12 @@ const FlightSearchForm = ({
               <label className="field-label">Flying to</label>
               <div className="field-value">
                 <AirportAutocomplete
-                  placeholder="Select airport"
+                  placeholder="Select airport or city"
                   value={destination}
                   onChange={setDestination}
                   error={errors.destination}
                   compact={true}
+                  searchMode="duffel-locations"
                 />
               </div>
             </div>

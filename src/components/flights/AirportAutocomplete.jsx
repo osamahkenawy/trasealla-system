@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { searchAirports } from '@/services/flightsService';
+import { searchAirports, searchDuffelAirports, searchLocations } from '@/services/flightsService';
 
 /**
  * Airport Autocomplete Component
- * Provides search and selection functionality for airports
+ * Provides search and selection functionality for airports and cities
  */
 const AirportAutocomplete = ({
   value,
@@ -16,7 +16,8 @@ const AirportAutocomplete = ({
   required = false,
   disabled = false,
   icon = '✈️',
-  compact = false
+  compact = false,
+  searchMode = 'duffel-locations' // 'local', 'duffel', 'duffel-airports', 'duffel-locations'
 }) => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
@@ -58,12 +59,50 @@ const AirportAutocomplete = ({
     debounceTimerRef.current = setTimeout(async () => {
       setIsLoading(true);
       try {
-        const response = await searchAirports(query, 10);
-        const airports = response.airports || [];
-        setResults(airports);
-        setIsOpen(airports.length > 0);
+        let locations = [];
+        
+        switch (searchMode) {
+          case 'local':
+            // Search local database (29 airports)
+            const localResponse = await searchAirports(query, 10, 'local');
+            locations = localResponse.airports || [];
+            break;
+            
+          case 'duffel':
+            // Search Duffel with source parameter
+            const duffelResponse = await searchAirports(query, 10, 'duffel');
+            locations = duffelResponse.airports || [];
+            break;
+            
+          case 'duffel-airports':
+            // Search Duffel airports only (10,000+ airports)
+            const airportsResponse = await searchDuffelAirports(query, 10);
+            locations = airportsResponse.airports || [];
+            break;
+            
+          case 'duffel-locations':
+          default:
+            // Search Duffel locations (airports + cities)
+            const locationsResponse = await searchLocations(query, 'duffel');
+            locations = locationsResponse.data || [];
+            // Transform location format to airport format for compatibility
+            locations = locations.map(loc => ({
+              __typename: loc.type === 'AIRPORT' ? 'SingleAirport' : 'CityLocation',
+              code: loc.code,
+              title: loc.name,
+              city: loc.city || loc.name,
+              country: loc.country,
+              type: loc.type, // 'AIRPORT' or 'CITY'
+              latitude: loc.latitude,
+              longitude: loc.longitude
+            }));
+            break;
+        }
+        
+        setResults(locations);
+        setIsOpen(locations.length > 0);
       } catch (error) {
-        console.error('Airport search error:', error);
+        console.error('Location search error:', error);
         setResults([]);
       } finally {
         setIsLoading(false);
@@ -75,7 +114,7 @@ const AirportAutocomplete = ({
         clearTimeout(debounceTimerRef.current);
       }
     };
-  }, [query]);
+  }, [query, searchMode]);
 
   // Handle click outside
   useEffect(() => {
@@ -238,14 +277,19 @@ const AirportAutocomplete = ({
                     onClick={() => handleSelect(airport)}
                     onMouseEnter={() => setHighlightedIndex(globalIndex)}
                   >
-                    <span className="me-2" style={{ fontSize: '1.2rem' }}>✈️</span>
+                    <span className="me-2" style={{ fontSize: '1.2rem' }}>
+                      {airport.type === 'CITY' ? '🏙️' : '✈️'}
+                    </span>
                     <div className="flex-grow-1">
                       <div className="fw-semibold">
                         <span className="text-primary">{airport.code}</span>
                         <span className="mx-1">-</span>
                         <span>{airport.title}</span>
+                        {airport.type === 'CITY' && (
+                          <span className="badge bg-secondary ms-2" style={{ fontSize: '0.7rem' }}>City</span>
+                        )}
                       </div>
-                      {airport.city && airport.city !== airport.title && (
+                      {airport.city && airport.city !== airport.title && airport.type !== 'CITY' && (
                         <small className="text-muted">{airport.city}</small>
                       )}
                     </div>

@@ -9,12 +9,13 @@ import axiosInstance from '@/plugins/axios';
  * Search airports (autocomplete)
  * @param {string} query - Search query
  * @param {number} limit - Maximum results
+ * @param {string} source - Data source ('local' or 'duffel')
  * @returns {Promise<Object>} Airport search results
  */
-export const searchAirports = async (query, limit = 10) => {
+export const searchAirports = async (query, limit = 10, source = 'local') => {
   try {
     const response = await axiosInstance.get('/airports/search', {
-      params: { q: query, limit }
+      params: { q: query, limit, source }
     });
     
     // Flatten airport groups to include subAirports in the main list
@@ -37,6 +38,44 @@ export const searchAirports = async (query, limit = 10) => {
     };
   } catch (error) {
     console.error('Error searching airports:', error);
+    throw error;
+  }
+};
+
+/**
+ * Search airports from Duffel API (10,000+ airports)
+ * @param {string} query - Search query
+ * @param {number} limit - Maximum results
+ * @returns {Promise<Object>} Airport search results
+ */
+export const searchDuffelAirports = async (query, limit = 10) => {
+  try {
+    const response = await axiosInstance.get('/airports/duffel/search', {
+      params: { q: query, limit }
+    });
+    
+    return response.data;
+  } catch (error) {
+    console.error('Error searching Duffel airports:', error);
+    throw error;
+  }
+};
+
+/**
+ * Search locations (airports + cities) from flight provider
+ * @param {string} keyword - Search keyword
+ * @param {string} provider - Provider ('duffel' or 'amadeus')
+ * @returns {Promise<Object>} Location search results with airports and cities
+ */
+export const searchLocations = async (keyword, provider = 'duffel') => {
+  try {
+    const response = await axiosInstance.get('/flights/locations', {
+      params: { keyword, provider }
+    });
+    
+    return response.data;
+  } catch (error) {
+    console.error('Error searching locations:', error);
     throw error;
   }
 };
